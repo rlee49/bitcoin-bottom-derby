@@ -1,10 +1,8 @@
-/*
-  Optional shared vote backend.
-  Leave URL/key blank for local/demo counting.
-  To enable one shared public pool, follow SUPABASE_SETUP.md.
-*/
+/* Browser-safe production connection. Never place secret/service keys here. */
 window.DERBY_SUPABASE = {
-  url: "",
-  anonKey: "",
-  contestId: "bitcoin-bottom-derby-2026"
+  url: "https://ngkwxkiihovmzwgiwmde.supabase.co",
+  publishableKey: "sb_publishable_j6zvZe1s8__COOusSYLhhA_NkIkZbyq",
+  contestId: "bitcoin-bottom-derby-2026",
+  functionName: "quick-handler",
+  redirectTo: "https://rlee49.github.io/bitcoin-bottom-derby/"
 };

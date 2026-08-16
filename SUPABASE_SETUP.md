@@ -1,36 +1,40 @@
-# Enable shared public vote totals
+# Supabase production setup — v45
 
-The website works immediately in local/demo mode. In that mode, each browser has its own sample ticket counts. Complete these steps before public launch so everyone sees one shared pool.
+The production database and Discord authentication are already connected in this release.
 
-## 1. Create the database
+## Live project
 
-1. Create a free Supabase project.
-2. Open **SQL Editor**.
-3. Paste and run the complete contents of `supabase-schema.sql`.
+- Site: `https://rlee49.github.io/bitcoin-bottom-derby/`
+- Supabase project: `https://ngkwxkiihovmzwgiwmde.supabase.co`
+- Contest: `bitcoin-bottom-derby-2026`
+- Edge Function endpoint slug: `quick-handler`
 
-The SQL creates a private vote table and two public functions. Visitors can read totals and cast one vote, but they cannot list the stored voter hashes.
+`supabase-config.js` contains only the browser-safe project URL and publishable key. Never place a secret key, service-role key, database password, Discord client secret, or bot token in any website file.
 
-## 2. Connect the page
+## Database source
 
-1. Open **Project Settings → API** in Supabase.
-2. Copy the **Project URL**.
-3. Copy the public **anon/publishable key**. Never paste the service-role secret into the website.
-4. Open `supabase-config.js` and enter the two values:
+The exact production schema is preserved in `backend/supabase-schema-v45-production.sql`. It creates:
 
-```js
-window.DERBY_SUPABASE = {
-  url: "https://YOUR-PROJECT.supabase.co",
-  anonKey: "YOUR-PUBLIC-ANON-KEY",
-  contestId: "bitcoin-bottom-derby-2026"
-};
-```
+- a private `derby_votes` table;
+- one locked vote per authenticated user and Discord account;
+- public read-only totals and Paddock Picks functions;
+- a signed-in member's own locked-pick function;
+- RLS and least-privilege grants that prevent browser writes to the private table.
 
-5. Republish the website.
+## Edge Function source
 
-The Bookie Board should then say **Shared public pool** instead of **Local demo pool**.
+The deployed function source is preserved in `backend/derby-vote-index.ts`. The dashboard display name is `derby-vote`, while its permanent endpoint slug is `quick-handler`.
 
-## What “one vote” means
+The function requires these encrypted server-side secrets:
 
-The browser creates a random device token, hashes it with SHA-256, and submits only the hash. Supabase enforces one accepted vote per token for the contest.
+- `DISCORD_GUILD_ID`
+- `DISCORD_BOT_TOKEN`
 
-This deters ordinary duplicate voting but is not identity-grade: someone can clear site data or use another browser/device. A real-money or regulated promotion should add sign-in, official eligibility rules, server-side rate limiting, and fraud review.
+It verifies the Supabase Discord session, checks current membership in the configured Discord server, rejects pending membership screening, and performs the protected vote insert server-side.
+
+## Public launch behavior
+
+- The shared database starts at zero genuine community votes.
+- Preview names and seeded browser votes are disabled.
+- Discord display names and avatars appear publicly only after a verified member locks a pick.
+- The private Discord user ID and Supabase user ID never appear in the public RPC output.

@@ -1,10 +1,10 @@
-# Bitcoin Bottom Derby — v44 Tom Clean Photorealistic Test Release
+# Bitcoin Bottom Derby — v45 Production Community Full Release
 
-**This is a complete test release for final visual approval. The approved v32 final/master build remains locked and unchanged.**
+**This complete production release branches from the approved v44 photorealistic build. The approved v32 final/master build remains locked and unchanged.**
 
-v44 starts from the user-supplied v43 clean-finish release and changes only Tom's twelve active animation PNGs. Tom is now the accepted photorealistic corn-man on the gray donkey; all enclosed white matte pockets and visible white edge contamination were removed, and the carrot plus stick remain visible throughout the complete cycle.
+v45 preserves the approved v44 crowd, track, characters, twelve-frame animation assets, and race presentation while replacing preview-only community behavior with live Discord OAuth, server-membership verification, shared Supabase vote totals, real Discord profile images, and one immutable pick per verified member.
 
-The v43 crowd, mountains, layout, UI, Discord card portraits, application code, race rules, and the other four racers are byte-for-byte unchanged. See `V44_CHANGES.md` and `V44_BASELINE_PROOF.md` for the exact scope and QA evidence.
+All 60 active photorealistic racer frames and the crowd/mountain artwork are byte-for-byte unchanged from v44. See `V45_CHANGES.md`, `SUPABASE_SETUP.md`, and `DISCORD_LIVE_SETUP.md` for production details. The v44 visual-repair evidence remains in `V44_CHANGES.md` and `V44_BASELINE_PROOF.md`.
 
 Serve the folder rather than opening `index.html` directly:
 
@@ -12,11 +12,13 @@ Serve the folder rather than opening `index.html` directly:
 python3 -m http.server 8080
 ```
 
-Run the packaged audit with:
+Run the v45 production and visual-baseline audit with:
 
 ```bash
-./tools/qa-v44.sh
+./tools/qa-v45.sh
 ```
+
+The website is configured for `https://rlee49.github.io/bitcoin-bottom-derby/`. The public publishable key in `supabase-config.js` is safe for browser use. All private Discord and Supabase credentials remain server-side.
 
 ---
 

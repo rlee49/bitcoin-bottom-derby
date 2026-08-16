@@ -1,6 +1,16 @@
 (() => {
   const config = window.RACE_CONFIG;
   const community = window.DERBY_COMMUNITY || { previewMode: true, serverName: 'Discord community', sampleEntries: [] };
+  const backend = window.DERBY_SUPABASE || {};
+  const hasBackendConfig = !community.previewMode
+    && /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(String(backend.url || ''))
+    && /^sb_publishable_[A-Za-z0-9_-]+$/.test(String(backend.publishableKey || ''))
+    && !!window.supabase?.createClient;
+  const supabaseClient = hasBackendConfig
+    ? window.supabase.createClient(backend.url, backend.publishableKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      })
+    : null;
   const racers = config.racers;
   const officialRacers = [...racers].sort((a, b) => a.name.localeCompare(b.name));
   const trackRacers = [...officialRacers];
@@ -39,16 +49,19 @@
     lastDailyClose: null,
     prevDailyClose: null,
     completedDailyCloses: 0,
-    localVotes: loadVoteCounts(),
-    voteLog: loadVoteLog(),
-    userPick: loadUserPick(),
+    localVotes: community.previewMode ? loadVoteCounts() : emptyVoteCounts(),
+    voteLog: community.previewMode ? loadVoteLog() : [],
+    userPick: community.previewMode ? loadUserPick() : null,
     probabilities: {},
     liveLeaders: ['tom', 'tatiana'],
     finalProjectedWinner: 'tom',
     volatility: 0.035,
     motionCycle: -1,
-    verifiedUser: loadVerifiedDiscordUser(),
-    publicEntries: loadPreviewPublicEntries(),
+    verifiedUser: community.previewMode ? loadVerifiedDiscordUser() : null,
+    publicEntries: community.previewMode ? loadPreviewPublicEntries() : [],
+    communityLoading: !community.previewMode,
+    communityError: '',
+    voteSubmitting: false,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -83,6 +96,7 @@
     renderFenceSigns();
     attachVoteToolButtons();
     render();
+    if (!community.previewMode) initializeCommunityBackend();
     tickClock();
     setInterval(tickClock, 1000);
     preloadRacerFrames().then(() => {
@@ -421,12 +435,148 @@
       <button class="race-how-btn" type="button" title="Official winner is the call closest in dollars to Bitcoin's lowest trade during the contest.">ⓘ How It Works</button>`;
   }
 
+  async function initializeCommunityBackend() {
+    if (!supabaseClient) {
+      state.communityLoading = false;
+      state.communityError = 'Discord entry is temporarily unavailable while the live connection loads.';
+      render();
+      return;
+    }
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      await applyCommunitySession(data.session || null);
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'INITIAL_SESSION') return;
+        window.setTimeout(() => applyCommunitySession(session || null), 0);
+      });
+    } catch (error) {
+      console.error('Community connection failed:', error);
+      state.communityLoading = false;
+      state.communityError = 'The community board could not connect. Refresh the page and try again.';
+      render();
+    }
+  }
+
+  async function applyCommunitySession(session) {
+    state.communityLoading = true;
+    state.communityError = '';
+    state.verifiedUser = session?.user ? discordUserFromSession(session.user) : null;
+    state.userPick = null;
+    render();
+    try {
+      await refreshCommunityData();
+      if (session?.user) await loadMyLockedPick();
+    } catch (error) {
+      console.error('Community data refresh failed:', error);
+      state.communityError = 'Live community totals are temporarily unavailable.';
+    } finally {
+      state.communityLoading = false;
+      render();
+    }
+  }
+
+  function discordUserFromSession(user) {
+    const meta = user?.user_metadata || {};
+    const identity = Array.isArray(user?.identities)
+      ? user.identities.find((item) => item.provider === 'discord')
+      : null;
+    const identityData = identity?.identity_data || {};
+    const name = String(
+      meta.full_name || meta.name || meta.user_name ||
+      identityData.full_name || identityData.name || identityData.user_name ||
+      'Discord member'
+    ).trim();
+    const avatar = firstHttpsUrl([
+      meta.avatar_url,
+      identityData.avatar_url,
+    ]);
+    return { id: user.id, name: name.slice(0, 100), avatar, verified: true };
+  }
+
+  function firstHttpsUrl(values) {
+    const found = values.map((value) => String(value || '')).find((value) => value.startsWith('https://'));
+    return found || '';
+  }
+
+  async function refreshCommunityData() {
+    const contestId = backend.contestId || 'bitcoin-bottom-derby-2026';
+    const [totalsResult, entriesResult] = await Promise.all([
+      supabaseClient.rpc('get_derby_vote_totals', { p_contest_id: contestId }),
+      supabaseClient.rpc('get_derby_public_entries', { p_contest_id: contestId })
+    ]);
+    if (totalsResult.error) throw totalsResult.error;
+    if (entriesResult.error) throw entriesResult.error;
+
+    const totals = emptyVoteCounts();
+    (totalsResult.data || []).forEach((row) => {
+      if (Object.prototype.hasOwnProperty.call(totals, row.racer_id)) {
+        totals[row.racer_id] = Math.max(0, Number(row.vote_count) || 0);
+      }
+    });
+    state.localVotes = totals;
+    state.publicEntries = (entriesResult.data || []).map((row, index) => ({
+      id: `${row.created_at || index}-${row.racer_id}-${index}`,
+      name: String(row.discord_display_name || 'Discord member'),
+      avatar: firstHttpsUrl([row.discord_avatar_url]),
+      racerId: row.racer_id,
+      oddsAtEntry: row.odds_at_entry || '',
+      createdAt: row.created_at || ''
+    }));
+  }
+
+  async function loadMyLockedPick() {
+    const { data, error } = await supabaseClient.rpc('get_my_derby_vote', {
+      p_contest_id: backend.contestId || 'bitcoin-bottom-derby-2026'
+    });
+    if (error) throw error;
+    const vote = Array.isArray(data) ? data[0] : data;
+    if (!vote) return;
+    state.userPick = vote.racer_id;
+    if (state.verifiedUser) {
+      state.verifiedUser.name = String(vote.discord_display_name || state.verifiedUser.name);
+      state.verifiedUser.avatar = firstHttpsUrl([vote.discord_avatar_url, state.verifiedUser.avatar]);
+    }
+  }
+
+  async function startDiscordLogin() {
+    if (!supabaseClient) {
+      alert('Discord entry is temporarily unavailable. Please refresh the page and try again.');
+      return;
+    }
+    state.communityError = '';
+    state.communityLoading = true;
+    render();
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'discord',
+      options: { redirectTo: backend.redirectTo || window.location.href.split('#')[0].split('?')[0] }
+    });
+    if (error) {
+      state.communityLoading = false;
+      state.communityError = error.message || 'Discord sign-in could not start.';
+      render();
+    }
+  }
+
+  async function signOutCommunityMember() {
+    if (!supabaseClient) return;
+    await supabaseClient.auth.signOut();
+    state.verifiedUser = null;
+    state.userPick = null;
+    state.communityError = '';
+    await refreshCommunityData().catch(() => {});
+    render();
+  }
+
   function renderCommunityEntry() {
     const panel = $('discord-entry-panel');
     if (!panel) return;
     const user = state.verifiedUser;
     const picked = state.userPick ? findRacer(state.userPick) : null;
     const previewBadge = community.previewMode ? '<span class="preview-mode-badge">PREVIEW</span>' : '';
+    const connectionNote = state.communityError
+      ? `<div class="entry-privacy community-error">${escapeHtml(state.communityError)}</div>`
+      : `<div class="entry-privacy">${escapeHtml(community.publicPickDisclosure || 'Your Discord display name, avatar and Derby pick will be public.')}</div>`;
 
     if (!user) {
       panel.innerHTML = `
@@ -434,38 +584,43 @@
           <div class="entry-kicker">${previewBadge}<span class="verified-pill">✓ VERIFIED ENTRY</span></div>
           <h3>🎟 Enter the Derby</h3>
           <p>Sign in with Discord to cast one locked pick. Anyone can watch the race.</p>
-          <div class="entry-privacy">${escapeHtml(community.publicPickDisclosure || 'Your Discord display name, avatar and Derby pick will be public.')}</div>
+          ${connectionNote}
         </div>
         <div class="discord-entry-actions">
-          <button id="discord-login-btn" class="discord-login-btn">Discord&nbsp;&nbsp; Sign in to enter</button>
+          <button id="discord-login-btn" class="discord-login-btn" ${state.communityLoading ? 'disabled' : ''}>${state.communityLoading ? 'Connecting…' : 'Discord&nbsp;&nbsp; Sign in to enter'}</button>
           <small>The Derby never asks for your Discord password.</small>
         </div>`;
-      $('discord-login-btn')?.addEventListener('click', previewDiscordLogin);
+      $('discord-login-btn')?.addEventListener('click', community.previewMode ? previewDiscordLogin : startDiscordLogin);
       return;
     }
 
     const initials = initialsFor(user.name);
+    const memberAvatar = user.avatar
+      ? `<img class="member-avatar" src="${escapeHtml(user.avatar)}" alt="${escapeHtml(user.name)}">`
+      : `<div class="member-avatar initials-avatar">${escapeHtml(initials)}</div>`;
     const options = officialRacers.map((r) => {
       const chosen = picked && picked.id === r.id;
-      return `<button class="bet-btn alt-pick-option ${chosen ? 'chosen' : ''}" data-racer="${r.id}" ${picked ? 'disabled' : ''}>
+      return `<button class="bet-btn alt-pick-option ${chosen ? 'chosen' : ''}" data-racer="${r.id}" ${picked || state.voteSubmitting ? 'disabled' : ''}>
         <img src="${r.avatar}" alt="${r.name}"><strong>${r.name}</strong><span>${r.displayPick}</span>
       </button>`;
     }).join('');
     panel.innerHTML = `
       <div class="verified-member-row">
-        <div class="member-avatar initials-avatar">${escapeHtml(initials)}</div>
+        ${memberAvatar}
         <div class="verified-member-copy">
           <div class="entry-kicker">${previewBadge}<span class="verified-pill">✓ VERIFIED</span></div>
           <h3>${escapeHtml(user.name)}</h3>
           <p>${picked ? `Your Derby pick is locked: <strong>${picked.name}</strong> — ${picked.displayPick}.` : 'Choose your racer below. Your pick locks after confirmation.'}</p>
+          ${community.previewMode ? '' : '<button id="discord-signout-btn" class="member-signout-btn" type="button">Sign out</button>'}
         </div>
         <div class="entry-status-box ${picked ? 'locked' : ''}">
           <span>${picked ? 'YOUR PICK' : 'STATUS'}</span>
-          <strong>${picked ? picked.name : 'Ready'}</strong>
-          ${picked ? '' : '<small>One pick only</small>'}
+          <strong>${picked ? picked.name : state.voteSubmitting ? 'Saving…' : 'Ready'}</strong>
+          ${picked ? '' : `<small>${state.voteSubmitting ? 'Please wait' : 'One pick only'}</small>`}
         </div>
         <div class="alt-racer-options">${options}</div>
       </div>`;
+    $('discord-signout-btn')?.addEventListener('click', signOutCommunityMember);
   }
 
   function previewDiscordLogin() {
@@ -491,8 +646,8 @@
       const prob = state.probabilities[r.id] || 0;
       const fracOdds = simplifyOdds((100 / Math.max(prob, 1)) - 1);
       const chosen = userPick === r.id;
-      const disabled = !!userPick || !verified;
-      const buttonText = chosen ? '✓ Your locked pick' : !verified ? 'Sign in to make a pick' : `Pick ${r.name}`;
+      const disabled = !!userPick || !verified || state.voteSubmitting;
+      const buttonText = chosen ? '✓ Your locked pick' : !verified ? 'Sign in to make a pick' : state.voteSubmitting ? 'Saving locked pick…' : `Pick ${r.name}`;
       return `
         <article class="odds-card ${chosen ? 'chosen' : ''}">
           <div class="odds-top"><img src="${r.avatar}" alt="${r.name}" class="odds-avatar"><div><h3>${r.name}</h3><p>${r.displayPick}${r.note ? `<br><small>${r.note}</small>` : ''}</p></div></div>
@@ -510,21 +665,67 @@
     document.querySelectorAll('.bet-btn').forEach((btn) => btn.addEventListener('click', onBetClick));
   }
 
-  function onBetClick(event) {
+  async function onBetClick(event) {
     const racerId = event.currentTarget.getAttribute('data-racer');
-    if (state.userPick) return;
+    if (state.userPick || state.voteSubmitting) return;
     if (!state.verifiedUser) return alert('Sign in with Discord before making a pick.');
     const racer = findRacer(racerId);
     if (!window.confirm(`Lock ${racer.name} — ${racer.displayPick} as your Derby pick?\n\nYou cannot change it after submitting.`)) return;
     const discordName = state.verifiedUser.name;
     const oddsAtEntry = simplifyOdds((100 / Math.max(state.probabilities[racerId] || 1, 1)) - 1);
-    state.userPick = racerId;
-    state.localVotes[racerId] = (state.localVotes[racerId] || 0) + 1;
-    saveUserPick(racerId, discordName);
-    saveVoteCounts(state.localVotes);
-    addPublicEntry({ id: state.verifiedUser.id, name: discordName, racerId });
-    appendVoteLog({ ts: new Date().toISOString(), discordName, discordId: state.verifiedUser.id, racerId, racerName: racer.name, oddsAtEntry, confirmedMember: true });
+    if (community.previewMode) {
+      state.userPick = racerId;
+      state.localVotes[racerId] = (state.localVotes[racerId] || 0) + 1;
+      saveUserPick(racerId, discordName);
+      saveVoteCounts(state.localVotes);
+      addPublicEntry({ id: state.verifiedUser.id, name: discordName, racerId });
+      appendVoteLog({ ts: new Date().toISOString(), discordName, discordId: state.verifiedUser.id, racerId, racerName: racer.name, oddsAtEntry, confirmedMember: true });
+      render();
+      return;
+    }
+
+    if (!supabaseClient) return alert('The live voting connection is unavailable. Refresh the page and try again.');
+    state.voteSubmitting = true;
+    state.communityError = '';
     render();
+    try {
+      const { data, error } = await supabaseClient.functions.invoke(backend.functionName || 'quick-handler', {
+        body: {
+          contestId: backend.contestId || 'bitcoin-bottom-derby-2026',
+          racerId,
+          oddsAtEntry
+        }
+      });
+      if (error) throw new Error(await edgeFunctionErrorMessage(error));
+      const vote = data?.vote || {};
+      state.userPick = vote.racer_id || racerId;
+      if (state.verifiedUser) {
+        state.verifiedUser.name = String(vote.discord_display_name || state.verifiedUser.name);
+        state.verifiedUser.avatar = firstHttpsUrl([vote.discord_avatar_url, state.verifiedUser.avatar]);
+      }
+      await refreshCommunityData();
+    } catch (error) {
+      console.error('Vote submission failed:', error);
+      const message = error?.message || 'Your pick could not be saved. Please try again.';
+      state.communityError = message;
+      alert(message);
+      await loadMyLockedPick().catch(() => {});
+      await refreshCommunityData().catch(() => {});
+    } finally {
+      state.voteSubmitting = false;
+      render();
+    }
+  }
+
+  async function edgeFunctionErrorMessage(error) {
+    try {
+      const response = error?.context;
+      if (response?.clone) {
+        const body = await response.clone().json();
+        if (body?.error) return String(body.error);
+      }
+    } catch (_) {}
+    return error?.message || 'Your pick could not be saved. Please try again.';
   }
 
   function renderPaddockPicks() {
@@ -555,7 +756,12 @@
               <b>${fans.length}</b>
             </div>
             <div class="supporter-list">
-              ${fans.length ? fans.map((fan) => `<div class="supporter"><span class="supporter-avatar">${escapeHtml(initialsFor(fan.name))}</span><span>${escapeHtml(fan.name)}</span><em>✓</em></div>`).join('') : '<div class="empty-supporters">Waiting for the first supporter…</div>'}
+              ${fans.length ? fans.map((fan) => {
+                const avatar = fan.avatar
+                  ? `<img class="supporter-avatar" src="${escapeHtml(fan.avatar)}" alt="">`
+                  : `<span class="supporter-avatar">${escapeHtml(initialsFor(fan.name))}</span>`;
+                return `<div class="supporter">${avatar}<span>${escapeHtml(fan.name)}</span><em>✓</em></div>`;
+              }).join('') : '<div class="empty-supporters">Waiting for the first supporter…</div>'}
             </div>
           </article>`).join('')}
       </div>`;
@@ -750,6 +956,7 @@
 
   function totalDailyCloses() { return Math.ceil((new Date(config.endDate) - new Date(config.startDate)) / 86400000); }
   function totalVoteCount() { return officialRacers.reduce((sum, r) => sum + (state.localVotes[r.id] || 0), 0); }
+  function emptyVoteCounts() { return Object.fromEntries(officialRacers.map((r) => [r.id, 0])); }
   function loadVoteCounts() { try { const raw = localStorage.getItem(config.betting.voteCountsStorageKey); if (raw) return { ...config.betting.seedVotes, ...JSON.parse(raw) }; } catch (_) {} return { ...config.betting.seedVotes }; }
   function saveVoteCounts(votes) { try { localStorage.setItem(config.betting.voteCountsStorageKey, JSON.stringify(votes)); } catch (_) {} }
   function loadVoteLog() { try { const raw = localStorage.getItem(config.betting.voteLogStorageKey); if (raw) return JSON.parse(raw); } catch (_) {} return []; }
