@@ -1,0 +1,2714 @@
+:root{
+  --bg:#06111f;
+  --panel:#0d223a;
+  --panel-2:#142b46;
+  --line:rgba(255,255,255,.09);
+  --text:#f6f7f4;
+  --muted:#bfd0e2;
+  --gold:#f4bb4f;
+  --green:#38d78e;
+  --red:#ff7777;
+  --track:#bd7447;
+  --track-dark:#7b4626;
+  --shadow:0 18px 42px rgba(0,0,0,.34);
+}
+
+*{box-sizing:border-box}
+html{background:#06111f}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:radial-gradient(circle at 50% -10%,#10345f 0,#081827 43%,#05101c 100%);
+}
+button,input{font:inherit}
+.page-shell{max-width:1480px;margin:0 auto;padding:24px}
+
+/* Header */
+.hero .eyebrow{margin-bottom:8px;color:var(--gold);font-size:13px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.hero-headline{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+h1{margin:4px 0 12px;font-family:Georgia,"Times New Roman",serif;font-size:66px;line-height:1}
+#subtitle{max-width:970px;margin:0;color:#d7e3ef;font-size:21px;line-height:1.38}
+.finish-chip{min-width:225px;padding:18px 22px;text-align:center;border:1px solid rgba(244,187,79,.45);border-radius:19px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));box-shadow:var(--shadow)}
+.finish-chip span{display:block;margin-bottom:7px;color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.finish-chip strong{font-size:34px}
+
+/* Shared cards and layout */
+.card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(19,45,73,.97),rgba(8,22,38,.98));box-shadow:var(--shadow)}
+.top-stats,.insight-row,.content-grid,.footer-metrics{display:grid;gap:14px;margin-top:16px}
+.top-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.content-grid{grid-template-columns:minmax(0,2.1fr) 360px;align-items:start}
+.left-stack,.sidebar{display:grid;gap:14px}
+.sidebar{position:sticky;top:12px}
+
+.stat-card{position:relative;min-height:132px;padding:18px 20px;overflow:hidden;display:flex;flex-direction:column;gap:6px}
+.stat-card::after,.racer-card::after{content:"";position:absolute;right:-25px;bottom:-28px;width:126px;height:126px;border-radius:50%;background:rgba(255,255,255,.035)}
+.stat-label{color:#d8e8f7;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.stat-value{font-size:54px;font-weight:950;line-height:1}
+.stat-small{color:var(--muted);font-size:18px}
+.stat-card.up .stat-small{color:var(--green)}
+.stat-card.down .stat-small{color:var(--red)}
+.stat-card.accent .stat-value{color:#ff8bc5}
+
+.status-ribbon{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px;border-color:rgba(244,187,79,.3);background:linear-gradient(90deg,rgba(64,47,18,.72),rgba(12,28,46,.97))}
+.status-left{display:flex;align-items:center;gap:14px}
+.status-left strong{display:block;margin-bottom:3px;font-size:31px}
+.status-left>div>div{max-width:930px;color:#e4edf8;font-size:17px;line-height:1.35}
+.status-right{color:#d4dfec;font-size:16px;white-space:nowrap}
+.tiny-avatar,.rule-avatar,.odds-avatar,.lane-avatar,.pick-chip img{width:42px;height:42px;border:2px solid rgba(255,255,255,.14);border-radius:50%;object-fit:cover;background:#06111f}
+
+.insight-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.insight-card{min-height:122px;padding:18px;display:flex;align-items:flex-start;gap:13px}
+.insight-card .icon{font-size:32px;line-height:1}
+.insight-card .mini-title{display:block;color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.insight-card strong{display:block;margin:3px 0 6px;font-size:28px;line-height:1.05}
+.insight-card div:last-child{color:var(--muted);font-size:17px;line-height:1.35}
+.accent-text{color:var(--green);font-weight:900}
+
+/* Track header */
+.track-card{padding:18px}
+.track-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:4px 4px 15px}
+.track-head h2,.depth-card h2,.rules-card h2,.bookie-board h2{margin:0 0 6px;font-size:34px}
+.track-head p,.depth-card p,.rules-card p,.bookie-board p{margin:0;color:var(--muted);font-size:17px;line-height:1.38}
+.track-meta{display:flex;flex-wrap:wrap;gap:13px;color:#dce6f3;font-size:16px}
+
+/* Track scene */
+.track-stage{
+  position:relative;
+  min-height:1295px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:25px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.026) 1px,transparent 1px) 0 0/58px 100%,
+    linear-gradient(180deg,#7f4d2c 0,#b96e42 11%,#c27b4c 89%,#784326 100%);
+}
+.track-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 55% 45%,transparent 42%,rgba(65,28,10,.14) 100%);pointer-events:none}
+
+/* Spectators */
+.top-crowd{position:absolute;z-index:5;left:16px;right:16px;top:8px;height:78px;display:flex;align-items:flex-end;justify-content:space-between}
+.top-crowd::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;border-radius:8px;background:linear-gradient(#8a6239,#6c4628)}
+.bottom-crowd{height:86px;padding:8px 17px 12px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(180deg,rgba(49,25,11,.1),rgba(41,22,10,.34))}
+.fan{position:relative;width:48px;height:62px;z-index:1}
+.fan-head{position:absolute;left:18px;top:5px;width:12px;height:12px;border-radius:50%;background:#f1d3bd}
+.fan-torso{position:absolute;left:12px;top:18px;width:25px;height:29px;border-radius:10px 10px 6px 6px;background:var(--shirt);box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
+.fan-arm{position:absolute;top:24px;width:17px;height:4px;border-radius:999px;background:#f1d3bd}
+.fan-arm.left{left:4px;transform:rotate(-34deg)}
+.fan-arm.right{right:4px;transform:rotate(34deg)}
+.fan-flag{position:absolute;left:-2px;top:9px;width:34px;height:18px;border-radius:3px 6px 6px 3px;background:var(--flag);box-shadow:0 4px 8px rgba(0,0,0,.2);animation:flagWave 1.15s ease-in-out infinite alternate;transform-origin:right center}
+.fan-flag::before{content:"";position:absolute;right:-2px;top:-2px;bottom:-13px;width:2px;background:#e3e7ee}
+.fan-flag em{position:absolute;inset:0;display:grid;place-items:center;color:#15202d;font-size:9px;font-style:normal;font-weight:950}
+@keyframes flagWave{to{transform:skewY(5deg) rotate(2deg)}}
+
+.fence-signs{position:absolute;z-index:4;left:110px;right:28px;top:84px;height:76px;border-bottom:8px solid #8b6035}
+.fence-sign{position:absolute;top:0;transform:translateX(-50%);padding:9px 13px;border:3px solid #896035;border-radius:10px;background:#f0d08d;color:#513418;font-size:13px;font-weight:950;text-transform:uppercase;box-shadow:0 8px 18px rgba(0,0,0,.2)}
+.fence-sign::before,.fence-sign::after{content:"";position:absolute;top:35px;width:4px;height:42px;background:#896035}
+.fence-sign::before{left:12px}.fence-sign::after{right:12px}
+.today-flag,.finish-ahead{position:absolute;z-index:4;top:140px;padding:8px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(68,34,15,.48);color:#ffe2a9;font-size:13px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+.today-flag{left:15px}.finish-ahead{right:18px}
+
+/* Lanes */
+.track-lanes{position:relative;z-index:2;padding:180px 18px 103px;display:grid;gap:0}
+.lane{position:relative;min-height:250px;display:grid;grid-template-columns:190px minmax(0,1fr);align-items:center;gap:15px;border-bottom:1px dashed rgba(80,39,19,.36)}
+.lane:last-child{border-bottom:none}
+.lane{overflow:hidden}
+.lane::after{content:"";position:absolute;left:205px;right:0;bottom:13px;height:3px;border-radius:999px;background:rgba(84,43,22,.72)}
+.lane--rodster{background:linear-gradient(90deg,transparent 25%,rgba(23,27,34,.08) 60%,transparent)}
+
+.racer-card{position:relative;z-index:6;min-height:132px;padding:15px;border:1px solid rgba(255,255,255,.13);border-left:4px solid var(--racer-accent);border-radius:20px;background:linear-gradient(180deg,#102c4b,#092139);display:grid;grid-template-columns:45px minmax(0,1fr);gap:12px;overflow:hidden}
+.racer-rank{position:relative;z-index:2;width:45px;height:45px;display:grid;place-items:center;border-radius:14px;background:var(--gold);color:#17120b;font-size:22px;font-weight:950}
+.racer-info{position:relative;z-index:2;min-width:0}
+.name-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.name-row strong{font-size:22px;line-height:1.1}
+.pick-row{margin-top:7px;color:#edf3fa;font-size:15px;line-height:1.3}
+.lane-status{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.07);color:#f7d890;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+
+.lane-track{position:relative;height:250px;overflow:hidden}
+.lane-surface{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.018),transparent)}
+.lane-line{position:absolute;left:0;right:0;top:73%;height:4px;border-radius:999px;background:linear-gradient(90deg,rgba(75,38,19,.83),rgba(95,51,27,.96))}
+.lane-line::after{content:"";position:absolute;right:0;top:-6px;border-left:18px solid rgba(89,48,25,.95);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.speed-streaks{position:absolute;left:0;right:0;top:28%;bottom:15%;opacity:.35;background:repeating-linear-gradient(90deg,transparent 0 74px,rgba(255,226,173,.55) 74px 114px,transparent 114px 190px);background-size:190px 100%;animation:trackRush 1.05s linear infinite;mask-image:linear-gradient(90deg,transparent,#000 15%,#000 82%,transparent)}
+@keyframes trackRush{to{background-position:-190px 0}}
+
+/* Racer animation stage */
+.racer-runner{position:absolute;z-index:4;left:var(--track-position);top:50%;transform:translate(-43%,-50%);transition:left .9s cubic-bezier(.2,.75,.2,1);pointer-events:none;animation:runnerBob .76s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.racer-runner--tatiana{width:390px;aspect-ratio:1200/785}
+.racer-runner--tom{width:350px;aspect-ratio:1200/931}
+.racer-runner--rodster{width:410px;aspect-ratio:1200/793}
+.racer-runner--bike{width:390px;aspect-ratio:1200/843}
+@keyframes runnerBob{0%,100%{transform:translate(-43%,-49%) rotate(-.3deg)}45%{transform:translate(-42.4%,-52%) rotate(.35deg)}72%{transform:translate(-42.8%,-50.5%) rotate(0)}}
+
+.racer-art{position:absolute;inset:0}
+.racer-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 12px 9px rgba(54,28,13,.18))}
+.racer-layer--ghost{z-index:0;opacity:.11;filter:blur(.4px) drop-shadow(0 12px 8px rgba(54,28,13,.15));transform:translate(-5px,4px)}
+.racer-layer--body{z-index:3}
+.racer-layer--rear,.racer-layer--front{z-index:2;will-change:transform}
+.racer-layer--rear{animation:rearGallop .76s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.racer-layer--front{animation:frontGallop .76s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.racer-art--tatiana .racer-layer--rear{transform-origin:48% 62%}
+.racer-art--tatiana .racer-layer--front{transform-origin:69% 61%}
+.racer-art--tom .racer-layer--rear{transform-origin:35% 62%}
+.racer-art--tom .racer-layer--front{transform-origin:66% 62%}
+@keyframes rearGallop{0%,100%{transform:translate(-6px,3px) rotate(-3.5deg)}50%{transform:translate(10px,-6px) rotate(5deg)}}
+@keyframes frontGallop{0%,100%{transform:translate(9px,-6px) rotate(4deg)}50%{transform:translate(-8px,4px) rotate(-4.5deg)}}
+
+/* Rodster's smoky image is intentionally treated as a dark charge aura. */
+.racer-art--rodster .racer-layer--rodster{z-index:2;opacity:.98;mask-image:radial-gradient(ellipse 74% 72% at 50% 51%,#000 55%,rgba(0,0,0,.95) 68%,transparent 100%);filter:contrast(1.04) brightness(1.1) drop-shadow(0 15px 13px rgba(5,9,15,.42));animation:darkCharge .72s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.charge-glint{position:absolute;z-index:4;right:5%;top:27%;width:62px;height:3px;border-radius:999px;background:linear-gradient(90deg,transparent,#fff,transparent);opacity:.55;animation:chargeGlint 1.4s ease-in-out infinite}
+@keyframes darkCharge{0%,100%{transform:translateY(1px) scale(1)}50%{transform:translateY(-5px) scale(1.01)}}
+@keyframes chargeGlint{0%,70%,100%{opacity:0;transform:translateX(-18px)}80%{opacity:.7;transform:translateX(7px)}}
+
+/* Bike: full image, spinning spoke overlays and moving pedal area. */
+.racer-layer--bike-base{z-index:2;animation:bikeBob .64s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.racer-layer--bike-pedal{z-index:4;opacity:.82;transform-origin:50.5% 70%;animation:pedalPump .72s ease-in-out infinite;animation-delay:var(--motion-delay)}
+.wheel-spin{position:absolute;z-index:5;width:29.5%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,255,255,.28);background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.55) 0 1deg,transparent 1deg 16deg);mask-image:radial-gradient(circle,transparent 0 18%,#000 19% 91%,transparent 92%);mix-blend-mode:screen;opacity:.42;animation:wheelSpin .62s linear infinite}
+.wheel-spin--rear{left:17.3%;top:55.8%}
+.wheel-spin--front{left:63.3%;top:56.1%}
+.crank-spin{position:absolute;z-index:6;left:49.1%;top:73.1%;width:9%;aspect-ratio:1;border:3px solid rgba(255,188,61,.78);border-radius:50%;animation:wheelSpin .72s linear infinite}
+.crank-spin::before,.crank-spin::after{content:"";position:absolute;left:50%;top:50%;width:115%;height:3px;border-radius:999px;background:rgba(255,209,105,.88);transform-origin:left center}
+.crank-spin::after{transform:rotate(90deg)}
+@keyframes bikeBob{0%,100%{transform:translateY(1px) rotate(-.15deg)}50%{transform:translateY(-3px) rotate(.18deg)}}
+@keyframes pedalPump{0%,100%{transform:translateY(0) rotate(1deg)}50%{transform:translateY(-4px) rotate(-2.5deg)}}
+@keyframes wheelSpin{to{transform:rotate(360deg)}}
+
+.position-flag{position:absolute;z-index:8;left:50%;top:7px;transform:translateX(-50%);padding:5px 9px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(8,24,40,.88);color:#f7dda0;font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;box-shadow:0 5px 14px rgba(0,0,0,.18)}
+.dust-cloud{position:absolute;z-index:0;left:13%;bottom:8%;width:85px;height:42px}
+.dust-cloud i{position:absolute;bottom:0;width:26px;height:18px;border-radius:50%;background:rgba(126,75,41,.36);filter:blur(2px);animation:dustPuff 1.05s ease-out infinite}
+.dust-cloud i:nth-child(2){left:18px;bottom:4px;animation-delay:-.25s}.dust-cloud i:nth-child(3){left:42px;animation-delay:-.52s}.dust-cloud i:nth-child(4){left:58px;bottom:7px;animation-delay:-.78s}
+@keyframes dustPuff{0%{transform:translate(25px,2px) scale(.45);opacity:0}18%{opacity:.48}100%{transform:translate(-65px,-14px) scale(1.5);opacity:0}}
+
+.track-bottom-decor{position:absolute;left:0;right:0;bottom:0;z-index:2}
+.grass-strip{height:17px;background:linear-gradient(#43823a,#23541e)}
+.flower-row{height:13px;background:repeating-linear-gradient(90deg,#efd078 0 10px,#68a346 10px 18px,#f3dfb2 18px 26px,#6da44d 26px 40px)}
+
+/* Sidebar */
+.depth-card,.rules-card{padding:18px}
+.muted{color:var(--muted)!important}
+.meter-wrap{padding:14px 4px 8px}
+.meter-scale{position:relative;height:480px;padding-left:78px;padding-right:124px}
+.meter-bar{position:absolute;left:40px;top:25px;bottom:25px;width:18px;border-radius:999px;background:linear-gradient(#8df5af,#f4e66d,#f1a256,#ef6464)}
+.tick{position:absolute;left:0;right:0;transform:translateY(-50%)}
+.tick::before{content:"";position:absolute;left:40px;top:11px;width:26px;border-top:2px solid rgba(255,255,255,.28)}
+.tick span{position:absolute;left:0;min-width:56px;color:#f5f8fc;font-size:19px;font-weight:900}
+.meter-label{position:absolute;left:84px;right:5px;transform:translateY(-50%);color:#e6edf7;font-size:17px;line-height:1.1}
+.meter-pointer{position:absolute;left:16px;transform:translateY(-50%)}
+.meter-pointer::before{content:"";position:absolute;left:10px;top:10px;border-right:16px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent}
+.meter-pointer span{display:inline-block;margin-left:30px;padding:8px 11px;border-radius:999px;background:#fff;color:#111;font-size:13px;font-weight:950;white-space:nowrap;box-shadow:0 7px 18px rgba(0,0,0,.2)}
+.depth-trend{margin-top:8px;padding-top:12px;border-top:1px solid var(--line);color:#dce6f3;font-size:16px}
+.rule-list{display:grid;gap:10px;margin-top:14px}
+.rule-item{display:grid;grid-template-columns:44px 1fr;align-items:start;gap:11px;padding:10px;border-radius:16px;background:rgba(255,255,255,.04)}
+.rule-item strong{display:block;font-size:22px}.rule-item div{color:#edf3f9;font-size:16px}.rule-item small{display:block;margin-top:3px;color:var(--muted);font-size:14px;line-height:1.3}
+.example-box{margin-top:12px;padding:12px 14px;border:1px solid rgba(244,187,79,.44);border-radius:14px;background:rgba(244,187,79,.08);color:#f7e7bd;font-size:15px;line-height:1.35}
+.manual-box{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}.manual-box summary{cursor:pointer;color:#fff;font-weight:800}
+
+/* Bookie board */
+.bookie-board{padding:18px}
+.board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px}
+.board-note{max-width:360px;text-align:right;color:#d8e5f3;font-size:15px}
+.odds-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.odds-card{padding:16px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.08))}
+.odds-card.chosen{outline:2px solid rgba(244,187,79,.72)}
+.odds-top{min-height:82px;display:flex;align-items:center;gap:12px}.odds-top h3{margin:0;font-size:29px}.odds-top p{margin:4px 0 0;color:var(--muted);font-size:16px}
+.odds-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}.odds-stats div{padding:12px;border-radius:15px;background:rgba(255,255,255,.04)}.odds-stats span{display:block;color:#c8d7e8;font-size:12px;letter-spacing:.08em;text-transform:uppercase}.odds-stats strong{display:block;margin-top:5px;font-size:27px}.odds-stats small{display:block;margin-top:3px;color:#a9bfd5;font-size:11px}
+.vote-form{display:grid;gap:10px}.discord-input{width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.13);border-radius:14px;background:rgba(3,10,18,.38);color:#fff;font-size:15px}.member-check{display:flex;align-items:flex-start;gap:8px;color:#d9e4f4;font-size:14px}.member-check input{margin-top:3px}
+.bet-btn,.secondary-btn{width:100%;padding:14px 16px;border:0;border-radius:15px;background:linear-gradient(#f7c15a,#e69f34);color:#1f1307;font-size:16px;font-weight:950;cursor:pointer;box-shadow:0 9px 16px rgba(0,0,0,.18)}.bet-btn[disabled]{opacity:.6;cursor:not-allowed}
+.vote-tools{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}.vote-tools-copy h3{margin:0 0 6px;font-size:21px}.vote-tools-copy p{max-width:760px;margin:0;color:var(--muted);font-size:14px;line-height:1.45}.vote-tools-actions{display:flex;gap:10px}.secondary-btn{width:auto;background:linear-gradient(#32567e,#17314d);color:#edf4fc;border:1px solid rgba(255,255,255,.12)}.secondary-btn.warn{background:linear-gradient(#5d2b2b,#371717)}
+.vote-log-panel{min-height:115px;margin:14px 0 0;padding:16px;overflow:auto;white-space:pre-wrap;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(4,10,18,.36);color:#dce6f4;font-size:13px;line-height:1.55}
+.footer-metrics{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:0}.footer-card{padding:18px}.footer-card h3{margin:0 0 8px;font-size:25px}.footer-card p{margin:0;color:var(--muted);font-size:16px;line-height:1.35}.footer-card strong{display:block;margin-top:10px;color:#ffd783;font-size:19px}.footer-icon{margin-bottom:8px;font-size:44px}.big-number{font-size:48px;font-weight:950}.pick-chip{display:inline-flex;align-items:center;gap:10px;margin:8px 0 10px;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.05);font-size:20px;font-weight:900}
+
+@media(max-width:1250px){
+  h1{font-size:54px}#subtitle{font-size:19px}
+  .content-grid{grid-template-columns:1fr}.sidebar{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .top-stats,.insight-row,.odds-grid,.footer-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .track-stage{min-height:1275px}
+}
+
+@media(max-width:840px){
+  .page-shell{padding:14px}
+  .hero-headline,.status-ribbon,.track-head,.board-head,.vote-tools{flex-direction:column;align-items:stretch}
+  h1{font-size:41px}.finish-chip{min-width:0}.finish-chip strong{font-size:29px}
+  .top-stats,.insight-row,.odds-grid,.footer-metrics,.sidebar{grid-template-columns:1fr}
+  .status-right,.board-note{text-align:left;white-space:normal}
+  .track-stage{min-height:1760px}
+  .track-lanes{padding-top:174px;padding-bottom:96px}
+  .lane{min-height:390px;grid-template-columns:1fr;align-content:start;gap:6px;padding-top:8px}
+  .lane::after{left:0;bottom:15px}
+  .racer-card{min-height:94px;grid-template-columns:44px 1fr}
+  .lane-track{height:278px}
+  .racer-runner--tatiana{width:min(390px,101vw)}
+  .racer-runner--tom{width:min(350px,91vw)}
+  .racer-runner--rodster{width:min(410px,106vw)}
+  .racer-runner--bike{width:min(390px,101vw)}
+  .position-flag{top:8px}
+  .top-crowd{left:7px;right:7px;height:65px}.bottom-crowd{height:75px;padding:5px 9px 10px}.fan{width:42px;transform:scale(.78)}
+  .meter-scale{height:370px;padding-left:70px;padding-right:70px}.tick span{font-size:17px}.meter-label{left:76px;font-size:15px}
+  .stat-value{font-size:42px}.status-left strong,.insight-card strong{font-size:25px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .racer-runner,.racer-layer--rear,.racer-layer--front,.racer-layer--rodster,.racer-layer--bike-base,.racer-layer--bike-pedal,.wheel-spin,.crank-spin,.speed-streaks,.dust-cloud i,.fan-flag{animation:none!important}
+}
+
+/* v7.1 — simplify approved artwork layers so each racer stays clean and readable */
+.track-stage{min-height:1045px}
+.track-lanes{padding:174px 18px 100px}
+.lane{min-height:192px}
+.lane-track{height:192px;overflow:visible}
+.horse-wrap{width:500px;height:184px;top:2px}
+.art-stage{transform:translate(-50%,-50%) scale(1);}
+.racer-tom .art-stage{transform:translate(-50%,-50%) scale(1.14)}
+.racer-tatiana .art-stage{transform:translate(-50%,-50%) scale(1.02)}
+.racer-rodster .art-stage{transform:translate(-50%,-50%) scale(.96)}
+.racer-bike .art-stage{transform:translate(-50%,-50%) scale(1.02)}
+.motion-gallop .art-full{
+  z-index:3;
+  animation:cleanGallop .74s ease-in-out infinite;
+}
+.motion-gallop .leg-echo{
+  z-index:2;
+  clip-path:polygon(0 57%,100% 57%,100% 100%,0 100%);
+  opacity:.18;
+  filter:blur(.6px) drop-shadow(0 7px 5px rgba(67,34,17,.15));
+  transform-origin:55% 68%;
+  animation:legEcho .74s ease-in-out infinite;
+}
+.motion-aura .leg-echo{display:none}
+.motion-aura .art-full{animation:darkCharge .74s ease-in-out infinite}
+.motion-pedal .art-full{z-index:2;animation:bikeBob .62s ease-in-out infinite}
+.wheel-layer{opacity:.94}
+.pedal-layer{opacity:.72;clip-path:ellipse(13% 22% at 50% 64%)}
+.road-shadow{left:31%;right:22%;bottom:13px}
+.racer-tom .road-shadow{left:34%;right:27%}
+.racer-rodster .road-shadow{left:25%;right:16%}
+.racer-bike .road-shadow{left:20%;right:12%}
+.dust-cloud{bottom:17px}
+@keyframes cleanGallop{
+  0%,100%{transform:translate3d(-2px,2px,0) rotate(-.35deg) scaleX(1)}
+  38%{transform:translate3d(5px,-6px,0) rotate(.35deg) scaleX(1.012)}
+  72%{transform:translate3d(1px,-2px,0) rotate(.05deg) scaleX(.995)}
+}
+@keyframes legEcho{
+  0%,100%{transform:translate(-7px,3px) skewX(-2deg);opacity:.10}
+  50%{transform:translate(9px,-4px) skewX(3deg);opacity:.24}
+}
+@media (max-width:1250px){
+  .track-stage{min-height:1015px}
+  .lane{min-height:184px}
+  .lane-track{height:184px}
+  .horse-wrap{width:470px;height:178px}
+}
+@media (max-width:840px){
+  .track-stage{min-height:1180px}
+  .lane{min-height:236px}
+  .lane-track{height:166px;overflow:hidden}
+  .horse-wrap{width:390px;height:166px;top:-1px}
+  .racer-tom .art-stage{transform:translate(-50%,-50%) scale(1.05)}
+  .racer-tatiana .art-stage{transform:translate(-50%,-50%) scale(.96)}
+  .racer-rodster .art-stage{transform:translate(-50%,-50%) scale(.86)}
+  .racer-bike .art-stage{transform:translate(-50%,-50%) scale(.96)}
+}
+
+/* v7.2 — complete positioning primitives for approved PNG racer artwork */
+.horse-wrap{
+  position:absolute!important;
+  top:2px!important;
+  width:500px!important;
+  height:184px!important;
+  transform:translateX(-50%)!important;
+  transition:left .9s cubic-bezier(.2,.75,.2,1)!important;
+  pointer-events:none;
+  z-index:4;
+}
+.racer-motion{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:visible;
+  transform-origin:50% 72%;
+  animation:strideBob .76s ease-in-out infinite;
+}
+.art-stage{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:100%!important;
+  height:100%!important;
+  transform-origin:center!important;
+}
+.art-layer{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  max-width:none!important;
+  max-height:none!important;
+  user-select:none;
+  -webkit-user-drag:none;
+  filter:drop-shadow(0 9px 7px rgba(49,25,13,.18));
+}
+.motion-gallop .art-full{z-index:3}
+.motion-gallop .leg-echo{z-index:2}
+.motion-pedal .art-full{z-index:2}
+.wheel-layer{
+  z-index:4;
+  opacity:.96;
+  animation:wheelSpin .68s linear infinite!important;
+}
+.wheel-rear{
+  clip-path:circle(17.2% at 31.1% 74.5%);
+  transform-origin:31.1% 74.5%!important;
+}
+.wheel-front{
+  clip-path:circle(17.2% at 78% 74.5%);
+  transform-origin:78% 74.5%!important;
+}
+.pedal-layer{
+  z-index:5;
+  opacity:.72;
+  clip-path:ellipse(13% 22% at 50% 64%);
+  transform-origin:50% 64%!important;
+  animation:pedalPump .68s linear infinite!important;
+}
+.speed-streak{
+  position:absolute!important;
+  right:62%;
+  z-index:0;
+  height:4px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(255,235,188,.78),transparent);
+  opacity:.68;
+  animation:streakFly .82s linear infinite;
+}
+.streak-a{top:38%;width:120px;animation-delay:-.12s}
+.streak-b{top:56%;width:82px;animation-delay:-.48s}
+.streak-c{top:68%;width:150px;animation-delay:-.31s}
+.racer-bike .speed-streak{background:linear-gradient(90deg,transparent,rgba(255,150,34,.9),transparent)}
+.dust-cloud{
+  position:absolute!important;
+  left:27%!important;
+  bottom:16px!important;
+  z-index:0!important;
+  width:45px!important;
+  height:18px!important;
+  border-radius:50%!important;
+  background:rgba(128,76,42,.32)!important;
+  filter:blur(2px)!important;
+  animation:dustPuffDirect 1.05s ease-out infinite!important;
+}
+.dust-two{left:18%!important;animation-delay:-.52s!important;transform:scale(.72)}
+.road-shadow{
+  position:absolute!important;
+  left:31%;
+  right:22%;
+  bottom:13px;
+  z-index:0;
+  height:16px;
+  border-radius:50%;
+  background:rgba(73,38,19,.22);
+  filter:blur(3px);
+  animation:shadowPulse .76s ease-in-out infinite;
+}
+.racer-rodster .road-shadow{background:rgba(13,17,23,.34)}
+@keyframes strideBob{
+  0%,100%{transform:translate3d(-2px,1px,0) rotate(-.25deg)}
+  45%{transform:translate3d(5px,-5px,0) rotate(.35deg)}
+  72%{transform:translate3d(1px,-2px,0) rotate(0)}
+}
+@keyframes streakFly{
+  0%{transform:translateX(80px) scaleX(.45);opacity:0}
+  20%{opacity:.7}
+  100%{transform:translateX(-130px) scaleX(1.15);opacity:0}
+}
+@keyframes dustPuffDirect{
+  0%{transform:translate(22px,0) scale(.45);opacity:0}
+  20%{opacity:.45}
+  100%{transform:translate(-62px,-12px) scale(1.45);opacity:0}
+}
+@keyframes shadowPulse{
+  0%,100%{transform:scaleX(.94);opacity:.5}
+  50%{transform:scaleX(1.05);opacity:.28}
+}
+@media(max-width:1250px){
+  .horse-wrap{width:470px!important;height:178px!important}
+}
+@media(max-width:840px){
+  .horse-wrap{width:390px!important;height:166px!important;top:-1px!important}
+}
+
+/* v7.3 — use compact animated WebP sprites built from the approved master art */
+.racer-picture{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  z-index:3;
+  transform-origin:center;
+}
+.racer-asset{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  max-width:none;
+  max-height:none;
+  filter:drop-shadow(0 9px 7px rgba(49,25,13,.18));
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.racer-tom .racer-picture{transform:scale(1.14)}
+.racer-tatiana .racer-picture{transform:scale(1.04)}
+.racer-rodster .racer-picture{transform:scale(.96)}
+.racer-bike .racer-picture{transform:scale(1.04)}
+.motion-aura .racer-asset{filter:drop-shadow(0 10px 10px rgba(10,14,21,.42))}
+/* Hide legacy layer elements if an older browser cached earlier markup. */
+.art-stage,.art-layer,.wheel-layer,.pedal-layer{pointer-events:none}
+@media(max-width:840px){
+  .racer-tom .racer-picture{transform:scale(1.06)}
+  .racer-tatiana .racer-picture{transform:scale(.98)}
+  .racer-rodster .racer-picture{transform:scale(.88)}
+  .racer-bike .racer-picture{transform:scale(.98)}
+}
+
+/* Final racer balance */
+.racer-tom .racer-picture{transform:scale(1.16)}
+.racer-tatiana .racer-picture{transform:scale(1.06)}
+.racer-rodster .racer-picture{transform:translateY(3px) scale(1.10)}
+.racer-bike .racer-picture{transform:translateY(1px) scale(1.08)}
+@media(max-width:840px){
+  .racer-tom .racer-picture{transform:scale(1.08)}
+  .racer-tatiana .racer-picture{transform:scale(1)}
+  .racer-rodster .racer-picture{transform:translateY(3px) scale(.96)}
+  .racer-bike .racer-picture{transform:translateY(1px) scale(1.02)}
+}
+
+
+/* v8 — clean integrated five-racer track with non-clipping crowd and sprite animation */
+.track-stage{
+  min-height:1320px !important;
+  overflow:hidden;
+  border-radius:26px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px) 0 0/58px 100%,
+    linear-gradient(180deg,#8a5533 0%, #bf7748 12%, #c88353 88%, #824b2c 100%) !important;
+}
+.track-stage::before{background:radial-gradient(ellipse at 55% 42%,transparent 46%,rgba(69,31,12,.18) 100%) !important}
+.top-crowd{
+  position:absolute;left:14px;right:14px;top:10px;height:118px;z-index:6;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:6px;padding:0 6px;
+}
+.top-crowd::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;border-radius:999px;background:linear-gradient(180deg,#86613a,#5d3b21)}
+.bottom-crowd{
+  position:relative;height:118px;padding:10px 14px 8px;display:flex;align-items:flex-end;justify-content:space-between;gap:4px;
+  background:linear-gradient(180deg,rgba(86,43,19,.16),rgba(63,31,14,.55));
+}
+.crowd-fan{position:relative;width:112px;height:104px;display:flex;align-items:flex-end;justify-content:center;transform:scale(var(--scale,1));transform-origin:center bottom;animation:crowdBob var(--dur,2.3s) ease-in-out infinite;animation-delay:calc(var(--delay,0s) * -1)}
+.crowd-fan.row-top:nth-child(even){margin-bottom:4px}
+.crowd-sprite{display:block;max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 7px 8px rgba(0,0,0,.25));user-select:none;-webkit-user-drag:none}
+@keyframes crowdBob{0%,100%{transform:translateY(0) scale(var(--scale,1)) rotate(-.2deg)}25%{transform:translateY(-4px) scale(var(--scale,1)) rotate(.4deg)}50%{transform:translateY(-1px) scale(var(--scale,1)) rotate(-.5deg)}75%{transform:translateY(-5px) scale(var(--scale,1)) rotate(.35deg)}}
+
+.fence-signs{top:102px !important;height:86px;border-bottom:8px solid #8b6035}
+.today-flag,.finish-ahead{top:162px !important}
+.track-lanes{padding:214px 18px 128px !important;display:grid;gap:0}
+.lane{min-height:186px !important;grid-template-columns:200px minmax(0,1fr);align-items:center;gap:18px;overflow:hidden}
+.lane::after{left:215px !important;bottom:18px !important;height:3px;background:rgba(88,46,24,.7)}
+.lane-track{position:relative;height:170px !important;overflow:visible !important}
+.lane-line{top:72% !important;height:4px;background:linear-gradient(90deg,rgba(83,43,21,.84),rgba(102,54,28,.98))}
+.racer-card{min-height:116px !important;padding:14px !important}
+.racer-rank{font-size:20px !important}
+.name-row strong{font-size:18px !important}
+.pick-row{font-size:14px !important;line-height:1.28 !important;max-width:140px}
+.motion-status{margin-top:7px;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);color:#ffdd9a;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.guest-card{border-left-color:#7be3ff !important}
+.guest-note{color:#c8f3ff !important}
+
+.horse-wrap{position:absolute !important;top:-4px !important;width:420px !important;height:190px !important;transform:translateX(-50%) !important;transition:left .9s cubic-bezier(.2,.75,.2,1) !important;pointer-events:none;z-index:4}
+.racer-motion{position:absolute !important;inset:0 !important;width:100%;height:100%;overflow:visible}
+.sprite-sheet{position:absolute;left:0;top:0;width:420px;height:190px;background-repeat:no-repeat;background-position:0 0;background-size:auto 100%;filter:drop-shadow(0 10px 9px rgba(55,28,13,.22));animation:spriteFrames .82s steps(8) infinite,spriteFloat .82s ease-in-out infinite;will-change:background-position,transform}
+.motion-pedal .sprite-sheet{animation-duration:.68s,.68s}
+.motion-aura .sprite-sheet{filter:drop-shadow(0 11px 10px rgba(6,10,17,.4))}
+.sprite-whitesw0n{background-image:url('assets/racers/whitesw0n-strip.png');transform:translateY(1px) scale(.96)}
+.sprite-tom{background-image:url('assets/racers/tom-strip.png');transform:translateY(6px) scale(.92)}
+.sprite-tatiana{background-image:url('assets/racers/tatiana-strip.png');transform:translateY(5px) scale(.92)}
+.sprite-rodster{background-image:url('assets/racers/rodster-strip.png');transform:translateY(6px) scale(.95)}
+.sprite-bike{background-image:url('assets/racers/bike-strip.png');transform:translateY(8px) scale(.93)}
+@keyframes spriteFrames{from{background-position:0 0}to{background-position:-3360px 0}}
+@keyframes spriteFloat{0%,100%{transform:translateY(var(--y,0)) scale(var(--s,1)) rotate(-.25deg)}40%{transform:translateY(calc(var(--y,0) - 6px)) scale(var(--s,1)) rotate(.35deg)}70%{transform:translateY(calc(var(--y,0) - 2px)) scale(var(--s,1)) rotate(.1deg)}}
+.sprite-whitesw0n{--y:1px;--s:.96}.sprite-tom{--y:6px;--s:.92}.sprite-tatiana{--y:5px;--s:.92}.sprite-rodster{--y:6px;--s:.95}.sprite-bike{--y:8px;--s:.93}
+
+.speed-streak{position:absolute;right:60%;z-index:0;height:4px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,236,192,.8),transparent);opacity:.72;animation:streakFly .85s linear infinite}
+.streak-a{top:42%;width:120px;animation-delay:-.12s}.streak-b{top:58%;width:78px;animation-delay:-.42s}.streak-c{top:68%;width:144px;animation-delay:-.28s}.racer-bike .speed-streak{background:linear-gradient(90deg,transparent,rgba(255,145,34,.88),transparent)}
+@keyframes streakFly{0%{transform:translateX(90px) scaleX(.45);opacity:0}20%{opacity:.75}100%{transform:translateX(-138px) scaleX(1.15);opacity:0}}
+.dust-cloud{position:absolute !important;left:24% !important;bottom:15px !important;z-index:0 !important;width:46px !important;height:18px !important;border-radius:50% !important;background:rgba(125,74,42,.32) !important;filter:blur(2px) !important;animation:dustPuff 1.08s ease-out infinite !important}
+.dust-two{left:17% !important;animation-delay:-.54s !important;transform:scale(.72)}
+@keyframes dustPuff{0%{transform:translate(24px,0) scale(.45);opacity:0}20%{opacity:.45}100%{transform:translate(-64px,-12px) scale(1.45);opacity:0}}
+.road-shadow{position:absolute !important;left:28%;right:21%;bottom:13px;z-index:0;height:16px;border-radius:50%;background:rgba(73,38,19,.22);filter:blur(3px);animation:shadowPulse .82s ease-in-out infinite}
+.racer-bike .road-shadow{left:21%;right:16%;bottom:10px}
+.racer-rodster .road-shadow{background:rgba(13,17,23,.32)}
+@keyframes shadowPulse{0%,100%{transform:scaleX(.95);opacity:.5}50%{transform:scaleX(1.04);opacity:.28}}
+
+.track-bottom-decor{z-index:4 !important}
+.grass-strip{height:18px !important;background:linear-gradient(#428639,#22531f) !important}
+.flower-row{height:14px !important;background:repeating-linear-gradient(90deg,#eed078 0 10px,#689f46 10px 18px,#f6e4b7 18px 26px,#6ea84d 26px 40px) !important}
+
+@media(max-width:1250px){
+  .track-stage{min-height:1260px !important}
+  .top-crowd,.bottom-crowd{height:102px}
+  .track-lanes{padding-top:200px !important}
+  .horse-wrap{width:390px !important;height:178px !important}
+  .sprite-sheet{width:390px;height:178px;background-size:auto 100%}
+}
+@media(max-width:840px){
+  .track-stage{min-height:1640px !important}
+  .top-crowd{height:92px;gap:0}
+  .bottom-crowd{height:92px;gap:0;padding:6px 8px 8px}
+  .crowd-fan{width:72px;height:82px}
+  .track-lanes{padding:198px 12px 106px !important}
+  .lane{min-height:262px !important;grid-template-columns:1fr;align-content:start;gap:6px;padding-top:6px}
+  .lane::after{left:0 !important}
+  .lane-track{height:176px !important}
+  .horse-wrap{width:340px !important;height:160px !important;top:2px !important}
+  .sprite-sheet{width:340px;height:160px}
+}
+
+/* v8.1 depth meter spacing */
+.meter-scale{height:470px !important;padding-left:82px !important;padding-right:132px !important}
+.tick span{font-size:18px !important}
+.meter-label{left:88px !important;font-size:16px !important;line-height:1.15 !important}
+.meter-pointer span{font-size:12px !important}
+@media(max-width:840px){.meter-scale{height:400px !important;padding-left:72px !important;padding-right:76px !important}.meter-label{left:78px !important;font-size:14px !important}.tick span{font-size:16px !important}}
+
+/* v9 fixes — use animated image assets instead of CSS strip scrolling */
+.sprite-sheet{display:none !important}
+.racer-picture{position:absolute !important;inset:0 !important;display:block !important;width:100% !important;height:100% !important;z-index:3}
+.racer-asset{display:block !important;width:100% !important;height:100% !important;object-fit:contain !important;object-position:center center !important;filter:drop-shadow(0 10px 9px rgba(55,28,13,.22));user-select:none;-webkit-user-drag:none}
+.motion-aura .racer-asset{filter:drop-shadow(0 11px 11px rgba(6,10,17,.42))}
+.horse-wrap{width:360px !important;height:170px !important;top:0 !important}
+.racer-bike.horse-wrap{width:368px !important;height:170px !important}
+.racer-rodster.horse-wrap{width:372px !important;height:172px !important}
+.racer-motion{animation:runnerBob .82s ease-in-out infinite}
+.racer-picture{animation:none !important}
+.speed-streak{opacity:.44 !important}
+.dust-cloud{opacity:.8}
+.road-shadow{left:24% !important;right:18% !important}
+.racer-bike .road-shadow{left:20% !important;right:15% !important}
+
+/* meter organization */
+.meter-layout{display:grid;grid-template-columns:96px minmax(0,1fr);gap:18px;align-items:start}
+.compact-meter{height:430px !important;padding-left:0 !important;padding-right:0 !important}
+.compact-meter .meter-bar{left:34px !important;top:8px !important;bottom:8px !important;width:16px !important}
+.compact-meter .tick::before{left:34px !important;width:18px !important}
+.compact-meter .tick span{left:0 !important;min-width:28px !important;font-size:15px !important}
+.compact-meter .meter-pointer{left:10px !important}
+.compact-meter .meter-pointer span{margin-left:24px !important;font-size:11px !important;padding:7px 10px !important}
+.meter-legend{display:grid;gap:10px;padding-top:6px}
+.meter-entry{display:grid;grid-template-columns:14px 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.04)}
+.meter-entry strong{display:block;font-size:15px;line-height:1.2;color:#f0f5fb}
+.meter-entry small{display:block;margin-top:2px;color:#b9cbe0;font-size:12px}
+.meter-dot{width:14px;height:14px;border-radius:50%;margin-top:3px;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.08) inset}
+.meter-entry.low .meter-dot{background:#ffffff}
+.meter-entry.tom .meter-dot{background:#d6f58d}
+.meter-entry.tatiana .meter-dot{background:#f9a5cb}
+.meter-entry.rodster .meter-dot{background:#81c0ff}
+.meter-entry.bike .meter-dot{background:#ffc66f}
+.meter-entry.whitesw0n .meter-dot{background:#8beeff}
+@media(max-width:840px){
+  .horse-wrap{width:310px !important;height:150px !important}
+  .racer-bike.horse-wrap{width:320px !important;height:150px !important}
+  .racer-rodster.horse-wrap{width:322px !important;height:152px !important}
+  .meter-layout{grid-template-columns:76px 1fr;gap:12px}
+  .compact-meter{height:360px !important}
+  .meter-entry strong{font-size:14px}
+}
+
+/* ===== v10 cleanup pass ===== */
+.track-stage{
+  position:relative;
+  min-height:1460px !important;
+  overflow:hidden;
+  border-radius:28px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) 0 0/58px 100%,
+    linear-gradient(180deg,#9b633c 0%, #c7814f 14%, #ca8553 84%, #a86b40 100%) !important;
+}
+.top-crowd{
+  position:absolute; left:20px; right:20px; top:8px; height:118px; z-index:6;
+  display:flex; justify-content:center; align-items:flex-end; pointer-events:none;
+}
+.bottom-crowd{
+  position:relative; height:94px; z-index:6; display:flex; justify-content:center; align-items:flex-end;
+  background:linear-gradient(180deg,rgba(72,40,18,.10),rgba(72,40,18,.28));
+}
+.crowd-group-wrap{display:flex;justify-content:center;align-items:flex-end;width:100%;height:100%;animation:crowdGroupBob 5.2s ease-in-out infinite}
+.crowd-group-wrap.bottom{opacity:.92;transform:scale(.88);transform-origin:center bottom}
+.crowd-group-art{display:block;max-width:min(930px,92%);max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22))}
+@keyframes crowdGroupBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+.fence-signs{top:116px !important;height:84px;z-index:5}
+.today-flag,.finish-ahead{top:166px !important;z-index:5}
+.track-lanes{position:relative;z-index:3;padding:228px 18px 128px !important;display:grid;gap:0}
+.lane{
+  min-height:206px !important;
+  grid-template-columns:200px minmax(0,1fr);
+  align-items:center;
+  gap:16px;
+  padding:6px 0 2px;
+}
+.lane::after{left:218px !important;bottom:12px !important;opacity:.25}
+.lane-track{position:relative;height:188px !important;overflow:hidden !important}
+.lane-line{top:78% !important;height:4px;background:linear-gradient(90deg,rgba(88,46,24,.94),rgba(102,54,28,.98))}
+.horse-wrap{
+  position:absolute !important;
+  top:10px !important;
+  width:350px !important;
+  height:160px !important;
+  transform:translateX(-50%);
+  z-index:3;
+}
+.racer-whitesw0n.horse-wrap{width:340px !important}
+.racer-bike.horse-wrap{width:342px !important}
+.racer-motion{position:absolute;inset:0;animation:racerFloat 2.0s ease-in-out infinite}
+.racer-asset{width:100% !important;height:100% !important;object-fit:contain !important;object-position:center bottom !important;display:block;filter:drop-shadow(0 10px 10px rgba(55,28,13,.18))}
+.motion-aura .racer-asset{filter:drop-shadow(0 10px 10px rgba(5,8,14,.35))}
+@keyframes racerFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.speed-streak{position:absolute;left:12%;top:48%;height:4px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,236,192,.66),rgba(255,255,255,0));opacity:.42;animation:streakDrift 1.3s linear infinite}
+.streak-a{width:72px}.streak-b{width:54px;top:60%;animation-delay:-.55s}.streak-c{width:84px;top:67%;animation-delay:-.25s}
+@keyframes streakDrift{0%{transform:translateX(24px);opacity:0}18%{opacity:.28}100%{transform:translateX(-56px);opacity:0}}
+.dust-cloud{position:absolute;bottom:18px;width:38px;height:16px;border-radius:50%;background:rgba(117,71,44,.20);filter:blur(3px);animation:dustTrail 1.35s ease-out infinite}
+.dust-one{left:18%}.dust-two{left:12%;animation-delay:-.65s;transform:scale(.8)}
+@keyframes dustTrail{0%{transform:translateX(18px) scale(.55);opacity:0}28%{opacity:.22}100%{transform:translateX(-42px) translateY(-4px) scale(1.25);opacity:0}}
+.road-shadow{position:absolute;left:23%;right:18%;bottom:8px;height:12px;border-radius:50%;background:rgba(74,39,20,.14);filter:blur(3px)}
+.racer-card.compact{min-height:116px !important}
+.pick-row{line-height:1.3 !important}
+.track-bottom-decor{z-index:4 !important}
+.grass-strip{height:20px !important;background:linear-gradient(#4d9140,#245c23) !important}
+.flower-row{height:14px !important;background:repeating-linear-gradient(90deg,#f2dd84 0 8px,#6aa44d 8px 18px,#f6ecbc 18px 26px,#6aa44d 26px 38px) !important}
+
+/* depth meter */
+.meter-layout{display:grid;grid-template-columns:104px minmax(0,1fr);gap:18px;align-items:start}
+.compact-meter{position:relative;height:440px !important;padding:0 !important}
+.compact-meter .meter-bar{position:absolute;left:40px;top:10px;bottom:10px;width:16px;border-radius:999px;background:linear-gradient(180deg,#9eff9d,#ffd95d,#ff9962,#ff6d7d)}
+.compact-meter .tick{position:absolute;left:0;right:0}
+.compact-meter .tick::before{content:"";position:absolute;left:40px;top:50%;width:16px;height:2px;background:#dbe6ef;opacity:.75}
+.compact-meter .tick span{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:15px;font-weight:800;color:#f2f7fc}
+.compact-meter .meter-pointer{position:absolute;left:9px;transform:translateY(-50%)}
+.compact-meter .meter-pointer::before{content:"";position:absolute;left:21px;top:50%;width:0;height:0;transform:translateY(-50%);border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:14px solid #ffffff}
+.compact-meter .meter-pointer span{display:inline-block;margin-left:38px;padding:7px 10px;border-radius:999px;background:#fff;color:#141414;font-size:11px;font-weight:900;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.meter-legend{display:grid;gap:10px;padding-top:2px}
+.meter-entry{display:grid;grid-template-columns:14px 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.04)}
+.meter-entry strong{display:block;font-size:15px;line-height:1.2;color:#f0f5fb}
+.meter-entry small{display:block;margin-top:2px;color:#b9cbe0;font-size:12px;line-height:1.2}
+.meter-dot{width:14px;height:14px;border-radius:50%;margin-top:3px}
+.meter-entry.low .meter-dot{background:#ffffff}.meter-entry.tom .meter-dot{background:#d6f58d}.meter-entry.tatiana .meter-dot{background:#f9a5cb}.meter-entry.rodster .meter-dot{background:#81c0ff}.meter-entry.bike .meter-dot{background:#ffc66f}.meter-entry.whitesw0n .meter-dot{background:#8beeff}
+
+@media (max-width: 1080px){
+  .track-stage{min-height:1520px !important}
+  .horse-wrap{width:320px !important;height:150px !important}
+}
+@media (max-width: 840px){
+  .track-stage{min-height:1860px !important}
+  .top-crowd{height:94px;left:8px;right:8px}
+  .bottom-crowd{height:74px}
+  .crowd-group-art{max-width:97%}
+  .fence-signs{top:90px !important}
+  .today-flag,.finish-ahead{top:138px !important}
+  .track-lanes{padding:196px 12px 104px !important}
+  .lane{grid-template-columns:1fr;min-height:248px !important;gap:8px}
+  .lane::after{left:0 !important}
+  .lane-track{height:164px !important}
+  .horse-wrap,.racer-bike.horse-wrap,.racer-whitesw0n.horse-wrap{width:290px !important;height:142px !important;top:6px !important}
+  .meter-layout{grid-template-columns:86px 1fr;gap:12px}
+  .compact-meter{height:390px !important}
+}
+
+/* ===== v11 sprite strip cleanup ===== */
+.crowd-group-art{max-width:min(860px,78%) !important}
+.bottom-crowd .crowd-group-art{max-width:min(700px,68%) !important}
+
+/* remove old guest-only treatment */
+.guest-card,.guest-note{all:unset}
+
+.horse-wrap{width:370px !important;height:170px !important;top:8px !important}
+.racer-whitesw0n.horse-wrap,.racer-tom.horse-wrap,.racer-tatiana.horse-wrap,.racer-bike.horse-wrap{width:360px !important}
+.racer-motion{animation:racerFloat 2.4s ease-in-out infinite !important}
+.speed-streak{animation:streakDrift 1.6s linear infinite !important}
+.dust-cloud{animation:dustTrail 1.55s ease-out infinite !important}
+
+.racer-picture,.racer-asset{display:none !important}
+.sprite-strip{
+  display:block !important;
+  position:absolute;
+  left:0; top:0;
+  width:var(--frame-w);
+  height:var(--frame-h);
+  background-repeat:no-repeat;
+  background-position:0 0;
+  background-size:calc(var(--frame-w) * var(--frame-count)) var(--frame-h);
+  image-rendering:auto;
+  filter:drop-shadow(0 10px 10px rgba(55,28,13,.18));
+  will-change:background-position;
+}
+.motion-aura .sprite-strip{filter:drop-shadow(0 10px 10px rgba(5,8,14,.35))}
+.sprite-whitesw0n{background-image:url('assets/racers/whitesw0n-strip-v11.png');animation:strip8 1.15s steps(8) infinite}
+.sprite-tom{background-image:url('assets/racers/tom-strip-v11.png');animation:strip8 1.15s steps(8) infinite}
+.sprite-tatiana{background-image:url('assets/racers/tatiana-strip-v11.png');animation:strip8 1.15s steps(8) infinite}
+.sprite-rodster{background-image:url('assets/racers/rodster-strip-v11.png');animation:strip8-rod 1.15s steps(8) infinite}
+.sprite-bike{background-image:url('assets/racers/bike-strip-v11.png');animation:strip10 1.05s steps(10) infinite}
+@keyframes strip8{from{background-position:0 0}to{background-position:-2520px 0}}
+@keyframes strip8-rod{from{background-position:0 0}to{background-position:-2590px 0}}
+@keyframes strip10{from{background-position:0 0}to{background-position:-3240px 0}}
+
+/* card polish */
+.racer-card.compact{display:flex;align-items:center;gap:14px;padding:15px 16px !important}
+.racer-rank{flex:0 0 auto}
+.racer-info{min-width:0;flex:1}
+.name-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lane-avatar{width:42px !important;height:42px !important;border-radius:50% !important;object-fit:cover;border:2px solid rgba(255,255,255,.22);box-shadow:0 0 0 2px rgba(0,0,0,.12)}
+.pick-row{font-size:14px !important;line-height:1.25 !important;max-width:none !important}
+.motion-status{margin-top:8px !important;padding:5px 11px !important;font-size:11px !important;letter-spacing:.08em !important}
+
+@media (max-width: 840px){
+  .crowd-group-art{max-width:94% !important}
+  .bottom-crowd .crowd-group-art{max-width:82% !important}
+  .horse-wrap,.racer-whitesw0n.horse-wrap,.racer-tom.horse-wrap,.racer-tatiana.horse-wrap,.racer-bike.horse-wrap{width:300px !important;height:146px !important}
+  .racer-rodster.horse-wrap{width:308px !important;height:148px !important}
+  .sprite-strip{transform:scale(.84);transform-origin:left top}
+}
+
+/* ===== v12 stationary in-place animation pass ===== */
+.crowd-group-art.wide{max-width:100% !important; width:100% !important; height:auto !important; max-height:100% !important; object-fit:contain !important}
+.top-crowd{height:168px !important; top:4px !important}
+.bottom-crowd{height:128px !important}
+.crowd-group-wrap.top{animation:crowdWave 4.8s ease-in-out infinite}
+.crowd-group-wrap.bottom{animation:crowdWave 5.2s ease-in-out infinite}
+@keyframes crowdWave{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.fence-signs{top:150px !important}
+.today-flag,.finish-ahead{top:202px !important}
+.track-lanes{padding-top:262px !important;padding-bottom:148px !important}
+
+/* cards */
+.racer-card.compact{width:100%;min-height:118px !important;overflow:hidden}
+.name-row strong{font-size:14px !important;letter-spacing:.01em}
+.lane-avatar{width:38px !important;height:38px !important;flex:0 0 38px}
+.pick-row{font-size:13px !important}
+.motion-status{font-size:10px !important}
+
+/* stationary racers */
+.horse-wrap{top:18px !important;width:332px !important;height:146px !important}
+.racer-rodster.horse-wrap{width:340px !important}
+.racer-motion{animation:none !important}
+.still-asset{display:block !important;width:100% !important;height:100% !important;object-fit:contain !important;object-position:center bottom !important;filter:drop-shadow(0 10px 10px rgba(55,28,13,.20));animation:racerInPlace 1.22s ease-in-out infinite}
+.motion-aura .still-asset{filter:drop-shadow(0 10px 10px rgba(5,8,14,.38))}
+.motion-pedal .still-asset{animation:riderPedal 1.06s ease-in-out infinite}
+@keyframes racerInPlace{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}25%{transform:translate3d(0,-2px,0) rotate(-.4deg)}50%{transform:translate3d(0,-4px,0) rotate(.25deg)}75%{transform:translate3d(0,-1px,0) rotate(-.2deg)}}
+@keyframes riderPedal{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}25%{transform:translate3d(0,-1px,0) rotate(-.5deg)}50%{transform:translate3d(0,-3px,0) rotate(.35deg)}75%{transform:translate3d(0,-1px,0) rotate(.1deg)}}
+.speed-streak{left:4% !important;top:52% !important;width:46px !important;height:3px !important;opacity:.18 !important;animation:streakFlicker 1.8s linear infinite !important}
+.streak-b{top:66% !important;width:34px !important;animation-delay:-.8s !important}
+.streak-c{top:73% !important;width:56px !important;animation-delay:-.32s !important}
+@keyframes streakFlicker{0%,100%{opacity:0;transform:translateX(0)}30%{opacity:.18}50%{opacity:.12;transform:translateX(-6px)}80%{opacity:.04;transform:translateX(-12px)}}
+.dust-cloud{left:12% !important;bottom:12px !important;width:28px !important;height:10px !important;opacity:.14 !important;animation:dustPulse 1.7s ease-in-out infinite !important}
+.dust-two{left:19% !important;animation-delay:-.85s !important}
+@keyframes dustPulse{0%,100%{transform:scale(.7);opacity:.02}50%{transform:scale(1);opacity:.14}}
+.road-shadow{left:18% !important;right:20% !important;bottom:7px !important;height:11px !important;background:rgba(74,39,20,.16) !important}
+.racer-bike .road-shadow{left:16% !important;right:16% !important}
+
+/* disable old sprite strip animation assets */
+.sprite-strip{display:none !important}
+
+@media (max-width: 840px){
+  .top-crowd{height:120px !important}
+  .bottom-crowd{height:92px !important}
+  .fence-signs{top:108px !important}
+  .today-flag,.finish-ahead{top:156px !important}
+  .track-lanes{padding-top:212px !important;padding-bottom:118px !important}
+  .horse-wrap{width:286px !important;height:132px !important;top:10px !important}
+  .racer-rodster.horse-wrap{width:294px !important}
+  .name-row strong{font-size:13px !important}
+  .pick-row{font-size:12px !important}
+}
+
+/* ===== v13 real-time polish ===== */
+.track-stage{
+  min-height: 1440px !important;
+}
+.top-crowd{
+  top: 0 !important;
+  left: 8px !important;
+  right: 8px !important;
+  height: 198px !important;
+  overflow: hidden;
+}
+.bottom-crowd{
+  height: 146px !important;
+  padding: 0 8px 8px !important;
+  overflow: hidden;
+}
+.crowd-group-wrap.top,
+.crowd-group-wrap.bottom{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  animation:crowdBandBob 4.6s ease-in-out infinite;
+}
+.crowd-group-wrap.bottom{animation-duration:5.1s}
+@keyframes crowdBandBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.crowd-group-art.wide{
+  width:100% !important;
+  max-width:none !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.18));
+}
+.fence-signs{ top: 176px !important; }
+.today-flag,.finish-ahead{ top: 226px !important; }
+.track-lanes{
+  padding: 286px 22px 156px !important;
+}
+.lane{
+  grid-template-columns: 208px minmax(0,1fr) !important;
+  min-height: 184px !important;
+  gap: 18px !important;
+  overflow: hidden !important;
+}
+.lane-track{
+  height: 174px !important;
+  overflow: hidden !important;
+}
+.racer-card.compact{
+  width:100% !important;
+  min-height:116px !important;
+  padding:16px 16px !important;
+  overflow:hidden !important;
+}
+.name-row{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 38px;
+  align-items:center;
+  gap:8px;
+}
+.name-row strong{
+  min-width:0;
+  font-size:13px !important;
+  line-height:1.15 !important;
+  overflow-wrap:anywhere;
+}
+.lane-avatar{
+  width:38px !important;
+  height:38px !important;
+  border-radius:50% !important;
+  object-fit:cover !important;
+  justify-self:end;
+}
+.pick-row{font-size:13px !important; line-height:1.3 !important;}
+.motion-status{font-size:10px !important; letter-spacing:.08em !important;}
+
+.horse-wrap{
+  top: 10px !important;
+  width: 350px !important;
+  height: 164px !important;
+  transform: translateX(-50%) !important;
+  transition: left .9s cubic-bezier(.2,.75,.2,1) !important;
+}
+.racer-rodster.horse-wrap{ width: 360px !important; }
+.racer-bike.horse-wrap{ width: 348px !important; }
+.racer-motion{
+  position:relative !important;
+  width:100% !important;
+  height:100% !important;
+  animation:none !important;
+}
+.racer-picture{display:block !important; width:100% !important; height:100% !important;}
+.motion-asset{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter: drop-shadow(0 9px 10px rgba(63,33,15,.18));
+}
+.motion-aura .motion-asset{filter: drop-shadow(0 10px 12px rgba(3,8,15,.30));}
+/* ensure old still/sprite systems are off */
+.still-asset,.sprite-strip{display:none !important;}
+
+/* keep racers visually lively without sliding sideways */
+.speed-streak{
+  left: 5% !important;
+  width: 42px !important;
+  height: 3px !important;
+  top: 56% !important;
+  opacity: .14 !important;
+  animation: speedPulse 1.8s linear infinite !important;
+}
+.streak-b{top:66% !important;width:32px !important;animation-delay:-.7s !important}
+.streak-c{top:72% !important;width:48px !important;animation-delay:-.35s !important}
+@keyframes speedPulse{0%{opacity:0;transform:translateX(0)}25%{opacity:.12}75%{opacity:.05;transform:translateX(-8px)}100%{opacity:0;transform:translateX(-12px)}}
+.dust-cloud{
+  bottom: 10px !important;
+  width: 24px !important;
+  height: 10px !important;
+  opacity: .14 !important;
+  animation: dustBreathe 1.7s ease-in-out infinite !important;
+}
+.dust-one{left:14% !important}
+.dust-two{left:21% !important; animation-delay:-.85s !important}
+@keyframes dustBreathe{0%,100%{transform:scale(.7);opacity:.02}50%{transform:scale(1);opacity:.14}}
+.road-shadow{
+  left: 20% !important;
+  right: 20% !important;
+  bottom: 7px !important;
+  height: 11px !important;
+  background: rgba(71,40,20,.14) !important;
+}
+.racer-bike .road-shadow{left:15% !important; right:15% !important;}
+
+@media (max-width: 840px){
+  .top-crowd{height:132px !important}
+  .bottom-crowd{height:102px !important}
+  .fence-signs{top:120px !important}
+  .today-flag,.finish-ahead{top:170px !important}
+  .track-lanes{padding:226px 12px 110px !important}
+  .lane{grid-template-columns:1fr !important; min-height:246px !important; gap:8px !important}
+  .lane-track{height:170px !important}
+  .horse-wrap{width:300px !important; height:144px !important; top:8px !important}
+  .racer-rodster.horse-wrap{width:306px !important}
+  .racer-bike.horse-wrap{width:298px !important}
+}
+
+/* ===== v14 audit fixes ===== */
+.track-stage{min-height:1480px !important}
+.top-crowd{
+  height:236px !important;
+  top:-8px !important;
+  left:0 !important;
+  right:0 !important;
+  padding:0 !important;
+}
+.bottom-crowd{
+  height:182px !important;
+  padding:0 !important;
+}
+.crowd-group-wrap.top,.crowd-group-wrap.bottom{
+  width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+}
+.crowd-group-wrap.top{animation:crowdBandBobLarge 4.2s ease-in-out infinite}
+.crowd-group-wrap.bottom{animation:crowdBandBobLarge 4.9s ease-in-out infinite}
+@keyframes crowdBandBobLarge{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.crowd-group-art.wide{
+  width:102% !important;
+  height:100% !important;
+  max-width:none !important;
+  object-fit:cover !important;
+  object-position:center bottom !important;
+}
+.fence-signs{top:202px !important}
+.today-flag,.finish-ahead{top:252px !important}
+.track-lanes{padding:318px 22px 188px !important}
+.lane{grid-template-columns:218px minmax(0,1fr) !important;min-height:186px !important;gap:16px !important}
+.lane-track{height:176px !important;overflow:hidden !important}
+.racer-card.compact{min-height:120px !important;padding:16px 16px !important}
+.name-row{grid-template-columns:minmax(0,1fr) 40px !important;gap:8px !important}
+.name-row strong{font-size:12px !important;line-height:1.15 !important;white-space:normal !important;word-break:break-word !important}
+.pick-row{font-size:13px !important;line-height:1.25 !important}
+.motion-status{font-size:10px !important}
+.lane-avatar{width:40px !important;height:40px !important}
+
+.horse-wrap{top:8px !important;width:352px !important;height:166px !important}
+.racer-whitesw0n.horse-wrap,.racer-tom.horse-wrap,.racer-tatiana.horse-wrap,.racer-bike.horse-wrap{width:348px !important}
+.racer-rodster.horse-wrap{width:360px !important;height:170px !important}
+.motion-asset{object-fit:contain !important;object-position:center center !important;width:100% !important;height:100% !important}
+.speed-streak{opacity:.12 !important}
+.road-shadow{left:18% !important;right:18% !important}
+
+@media (max-width: 840px){
+  .top-crowd{height:150px !important}
+  .bottom-crowd{height:112px !important}
+  .fence-signs{top:136px !important}
+  .today-flag,.finish-ahead{top:186px !important}
+  .track-lanes{padding:238px 12px 118px !important}
+  .lane{grid-template-columns:1fr !important;min-height:252px !important}
+  .lane-track{height:172px !important}
+  .horse-wrap,.racer-whitesw0n.horse-wrap,.racer-tom.horse-wrap,.racer-tatiana.horse-wrap,.racer-bike.horse-wrap{width:300px !important;height:146px !important}
+  .racer-rodster.horse-wrap{width:308px !important;height:150px !important}
+}
+
+/* ===== v15 targeted polish ===== */
+.top-crowd{
+  height:210px !important;
+  top:-2px !important;
+  left:0 !important;
+  right:0 !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  padding:0 10px !important;
+}
+.bottom-crowd{display:none !important;height:0 !important;overflow:hidden !important}
+.fence-signs{top:176px !important}
+.today-flag,.finish-ahead{top:226px !important}
+.track-lanes{padding:286px 20px 54px !important}
+
+.top-crowd .crowd-band{
+  position:relative;
+  flex:1 1 0;
+  min-width:0;
+  height:100%;
+  margin-left:-28px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  transform-origin:center bottom;
+}
+.top-crowd .crowd-band:first-child{margin-left:0}
+.crowd-band-img{
+  width:130%;
+  max-width:none;
+  height:95%;
+  object-fit:contain;
+  object-position:center bottom;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.18));
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.crowd-band-a{animation:crowdCheerA 4.1s ease-in-out infinite}
+.crowd-band-b{animation:crowdCheerB 4.7s ease-in-out infinite .3s}
+.crowd-band-c{animation:crowdCheerC 4.3s ease-in-out infinite .6s}
+.crowd-band-d{animation:crowdCheerB 5s ease-in-out infinite .15s}
+.crowd-band-e{animation:crowdCheerA 4.5s ease-in-out infinite .45s}
+@keyframes crowdCheerA{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@keyframes crowdCheerB{0%,100%{transform:translateY(-2px) rotate(.5deg)}50%{transform:translateY(-10px) rotate(-1deg)}}
+@keyframes crowdCheerC{0%,100%{transform:translateY(0) scaleY(1)}40%{transform:translateY(-8px) scaleY(1.02)}70%{transform:translateY(-4px) scaleY(.99)}}
+
+.lane{grid-template-columns:232px minmax(0,1fr) !important;min-height:174px !important;gap:14px !important}
+.racer-card.compact{min-height:112px !important;padding:14px 16px !important}
+.name-row{grid-template-columns:minmax(0,1fr) 42px !important}
+.name-row strong{font-size:11px !important;letter-spacing:.02em !important;white-space:normal !important;word-break:break-word !important}
+.pick-row{font-size:12px !important;line-height:1.25 !important}
+.motion-status{font-size:10px !important;letter-spacing:.08em !important}
+.lane-avatar{width:42px !important;height:42px !important;border-radius:50% !important;border:2px solid rgba(255,255,255,.18) !important}
+
+.lane-track{height:166px !important;overflow:hidden !important}
+.horse-wrap{top:12px !important;width:340px !important;height:154px !important;overflow:hidden !important}
+.racer-rodster.horse-wrap{width:352px !important;height:158px !important}
+.motion-asset{width:100% !important;height:100% !important;object-fit:contain !important;object-position:center center !important;clip-path:inset(0 0 0 26px) !important}
+.racer-bike .motion-asset{clip-path:inset(0 0 0 18px) !important}
+.racer-whitesw0n .motion-asset{clip-path:inset(0 0 0 24px) !important}
+.speed-streak{opacity:.09 !important}
+.road-shadow{left:22% !important;right:20% !important;bottom:14px !important}
+
+@media (max-width: 840px){
+  .top-crowd{height:146px !important;padding:0 4px !important}
+  .top-crowd .crowd-band{margin-left:-18px}
+  .crowd-band-img{width:145%;height:94%}
+  .fence-signs{top:122px !important}
+  .today-flag,.finish-ahead{top:164px !important}
+  .track-lanes{padding:210px 10px 42px !important}
+  .lane{grid-template-columns:1fr !important;min-height:232px !important}
+  .racer-card.compact{min-height:102px !important}
+  .name-row strong{font-size:18px !important}
+  .pick-row{font-size:14px !important}
+  .motion-status{font-size:11px !important}
+  .lane-track{height:150px !important}
+  .horse-wrap{width:298px !important;height:138px !important;top:10px !important}
+  .racer-rodster.horse-wrap{width:306px !important;height:142px !important}
+}
+
+/* ===== v16 audit pass ===== */
+.track-stage{
+  min-height:1380px !important;
+}
+.top-crowd{
+  height:222px !important;
+  top:0 !important;
+  left:10px !important;
+  right:10px !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:space-between !important;
+  overflow:hidden !important;
+  padding:0 8px !important;
+  gap:0 !important;
+}
+.top-crowd::after{
+  content:"" !important;
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:10px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#8f6840,#613d22) !important;
+}
+.bottom-crowd{display:none !important;height:0 !important;overflow:hidden !important}
+.fence-signs{top:188px !important}
+.today-flag,.finish-ahead{top:238px !important}
+.track-lanes{padding:300px 20px 84px !important;display:grid;gap:0 !important}
+
+.top-crowd .crowd-band{
+  position:relative;
+  flex:1 1 0;
+  height:100%;
+  min-width:0;
+  margin-left:-44px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  transform-origin:center bottom;
+}
+.top-crowd .crowd-band:first-child{margin-left:0}
+.crowd-band-img{
+  width:155%;
+  max-width:none;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  filter:drop-shadow(0 10px 14px rgba(0,0,0,.16));
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.crowd-band-a{animation:crowdWaveA 4.2s ease-in-out infinite}
+.crowd-band-b{animation:crowdWaveB 4.8s ease-in-out infinite .25s}
+.crowd-band-c{animation:crowdWaveC 3.9s ease-in-out infinite .45s}
+.crowd-band-d{animation:crowdWaveD 5.1s ease-in-out infinite .15s}
+.crowd-band-e{animation:crowdWaveA 4.6s ease-in-out infinite .35s}
+.crowd-band-f{animation:crowdWaveB 4.1s ease-in-out infinite .6s}
+.crowd-band-g{animation:crowdWaveC 4.9s ease-in-out infinite .2s}
+@keyframes crowdWaveA{0%,100%{transform:translate3d(0,0,0) scale(1)}35%{transform:translate3d(-6px,-5px,0) scale(1.02)}70%{transform:translate3d(5px,-9px,0) scale(.995)}}
+@keyframes crowdWaveB{0%,100%{transform:translate3d(0,-3px,0) scale(1)}40%{transform:translate3d(7px,-10px,0) scale(1.015)}75%{transform:translate3d(-5px,-5px,0) scale(.99)}}
+@keyframes crowdWaveC{0%,100%{transform:translate3d(0,0,0) scale(1)}30%{transform:translate3d(5px,-7px,0) scale(1.01)}60%{transform:translate3d(-4px,-11px,0) scale(1.02)}}
+@keyframes crowdWaveD{0%,100%{transform:translate3d(0,-1px,0) scale(1)}50%{transform:translate3d(3px,-8px,0) scale(1.012)}}
+
+.lane{grid-template-columns:212px minmax(0,1fr) !important;min-height:194px !important;gap:16px !important;padding-top:8px !important}
+.lane::after{left:230px !important;right:12px !important;bottom:10px !important}
+.lane-track{height:174px !important;overflow:hidden !important}
+.horse-wrap{top:14px !important;width:360px !important;height:160px !important;overflow:hidden !important}
+.racer-rodster.horse-wrap{width:372px !important;height:164px !important}
+.racer-bike.horse-wrap{width:350px !important;height:156px !important}
+.motion-asset{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  clip-path:none !important;
+  image-rendering:auto !important;
+}
+.speed-streak{opacity:.06 !important;filter:blur(1px) !important}
+.road-shadow{left:24% !important;right:20% !important;bottom:14px !important;opacity:.22 !important}
+
+.racer-card.compact{min-height:114px !important;padding:14px 16px !important}
+.name-row{grid-template-columns:minmax(0,1fr) 42px !important}
+.name-row strong{font-size:11px !important;line-height:1.05 !important;white-space:normal !important;word-break:break-word !important}
+.pick-row{font-size:12px !important;line-height:1.24 !important}
+.motion-status{font-size:10px !important;letter-spacing:.08em !important}
+.lane-avatar{width:42px !important;height:42px !important;border-radius:50% !important;border:2px solid rgba(255,255,255,.18) !important}
+
+.track-bottom-decor{
+  z-index:4 !important;
+  left:0 !important;right:0 !important;bottom:0 !important;
+}
+.track-bottom-decor::before{
+  content:"";
+  display:block;
+  height:26px;
+  background:linear-gradient(180deg,rgba(208,146,87,.28),rgba(176,114,63,.44));
+}
+.grass-strip{height:22px !important;background:linear-gradient(180deg,#4c9543,#266124) !important}
+.flower-row{height:18px !important;background:repeating-linear-gradient(90deg,#f7e6a7 0 10px,#6daa4c 10px 18px,#f7f0c8 18px 28px,#73ad4f 28px 40px) !important}
+
+@media (max-width: 900px){
+  .track-stage{min-height:1610px !important}
+  .top-crowd{height:170px !important;left:6px !important;right:6px !important}
+  .top-crowd .crowd-band{margin-left:-26px}
+  .crowd-band-img{width:172%;height:98%}
+  .fence-signs{top:144px !important}
+  .today-flag,.finish-ahead{top:186px !important}
+  .track-lanes{padding:238px 12px 76px !important}
+  .lane{grid-template-columns:1fr !important;min-height:228px !important;gap:8px !important}
+  .lane::after{left:0 !important;right:8px !important}
+  .racer-card.compact{min-height:104px !important}
+  .name-row strong{font-size:18px !important}
+  .pick-row{font-size:14px !important}
+  .motion-status{font-size:11px !important}
+  .lane-track{height:158px !important}
+  .horse-wrap{width:316px !important;height:146px !important;top:10px !important}
+  .racer-rodster.horse-wrap{width:326px !important;height:150px !important}
+  .racer-bike.horse-wrap{width:308px !important;height:142px !important}
+}
+
+/* ===== v17 final audit pass ===== */
+.top-crowd{
+  position:absolute !important;
+  z-index:6 !important;
+  left:18px !important;
+  right:18px !important;
+  top:18px !important;
+  height:112px !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:space-between !important;
+  gap:8px !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.top-crowd::after{display:none !important;content:none !important;}
+.bottom-crowd{display:none !important;height:0 !important;overflow:hidden !important;}
+.top-crowd .crowd-band{
+  flex:1 1 0 !important;
+  min-width:0 !important;
+  height:100% !important;
+  margin:0 !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  transform-origin:center bottom !important;
+}
+.crowd-band-img{
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.14)) !important;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.crowd-band-a{animation:crowdSwayA 5.8s ease-in-out infinite !important}
+.crowd-band-b{animation:crowdSwayB 6.4s ease-in-out infinite .35s !important}
+.crowd-band-c{animation:crowdSwayC 5.1s ease-in-out infinite .8s !important}
+.crowd-band-d{animation:crowdSwayA 6.1s ease-in-out infinite .55s !important}
+.crowd-band-e{animation:crowdSwayB 5.5s ease-in-out infinite .15s !important}
+.crowd-band-f{animation:crowdSwayC 6.2s ease-in-out infinite .6s !important}
+.crowd-band-g{animation:crowdSwayA 5.9s ease-in-out infinite .25s !important}
+.crowd-band-h{animation:crowdSwayB 6.0s ease-in-out infinite .45s !important}
+@keyframes crowdSwayA{0%,100%{transform:translate3d(0,0,0)}35%{transform:translate3d(-2px,0,0)}68%{transform:translate3d(2px,-1px,0)}}
+@keyframes crowdSwayB{0%,100%{transform:translate3d(0,0,0)}40%{transform:translate3d(2px,-1px,0)}75%{transform:translate3d(-2px,0,0)}}
+@keyframes crowdSwayC{0%,100%{transform:translate3d(0,0,0)}30%{transform:translate3d(1px,-1px,0)}65%{transform:translate3d(-1px,0,0)}}
+
+.fence-signs{
+  top:130px !important;
+  height:86px !important;
+  border-bottom:none !important;
+  left:112px !important;
+  right:28px !important;
+}
+.fence-signs::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#8b6035,#6f4928) !important;
+}
+.fence-sign{z-index:2 !important}
+.today-flag,.finish-ahead{top:178px !important}
+.track-lanes{padding:242px 18px 103px !important}
+
+.lane{min-height:246px !important}
+.lane-track{height:178px !important;overflow:hidden !important}
+.horse-wrap{
+  position:absolute !important;
+  top:10px !important;
+  width:380px !important;
+  height:176px !important;
+  transform:translateX(-50%) !important;
+  transition:left .9s cubic-bezier(.2,.75,.2,1) !important;
+  pointer-events:none !important;
+  overflow:hidden !important;
+  z-index:4 !important;
+}
+.racer-rodster.horse-wrap{width:392px !important;height:182px !important}
+.racer-bike.horse-wrap{width:372px !important;height:170px !important}
+.racer-motion,
+.racer-picture{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  animation:none !important;
+  transform:none !important;
+}
+.motion-asset,
+.racer-asset{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  clip-path:none !important;
+  transform:none !important;
+  image-rendering:auto !important;
+}
+.speed-streaks,.speed-streak{opacity:.12 !important}
+.dust-cloud{opacity:.12 !important}
+.road-shadow{opacity:.18 !important;left:27% !important;right:23% !important;bottom:12px !important}
+
+.racer-card.compact{grid-template-columns:45px minmax(0,1fr) !important}
+.name-row{grid-template-columns:minmax(0,1fr) 42px !important}
+.lane-avatar{width:42px !important;height:42px !important;border-radius:50% !important;border:2px solid rgba(255,255,255,.2) !important}
+.motion-status{letter-spacing:.08em !important}
+
+@media (max-width: 900px){
+  .top-crowd{left:10px !important;right:10px !important;top:14px !important;height:94px !important;gap:4px !important}
+  .fence-signs{top:108px !important;left:86px !important;right:18px !important;height:80px !important}
+  .today-flag,.finish-ahead{top:150px !important}
+  .track-lanes{padding:208px 12px 84px !important}
+  .lane{min-height:226px !important}
+  .lane-track{height:160px !important}
+  .horse-wrap{width:318px !important;height:146px !important;top:8px !important}
+  .racer-rodster.horse-wrap{width:326px !important;height:150px !important}
+  .racer-bike.horse-wrap{width:312px !important;height:142px !important}
+}
+
+/* ===== v18 owner + final visual polish ===== */
+.vote-tools,
+.vote-log-panel{display:none !important}
+.vote-tools.owner-visible{display:flex !important}
+.vote-log-panel.owner-visible{display:block !important}
+
+.top-crowd{
+  position:absolute !important;
+  z-index:7 !important;
+  left:20px !important;
+  right:20px !important;
+  top:8px !important;
+  height:150px !important;
+  display:grid !important;
+  grid-template-columns:repeat(5,1fr) !important;
+  gap:10px !important;
+  align-items:end !important;
+  overflow:hidden !important;
+}
+.top-crowd::after{display:none !important;content:none !important}
+.bottom-crowd{display:none !important;height:0 !important;overflow:hidden !important}
+.top-crowd .crowd-band{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:end !important;
+  justify-content:center !important;
+  margin:0 !important;
+  transform-origin:center bottom !important;
+}
+.crowd-band-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.18)) !important;
+}
+.crowd-band-a{animation:crowdV18A 6.4s ease-in-out infinite !important}
+.crowd-band-b{animation:crowdV18B 6.8s ease-in-out infinite .35s !important}
+.crowd-band-c{animation:crowdV18C 6.2s ease-in-out infinite .7s !important}
+.crowd-band-d{animation:crowdV18B 7.1s ease-in-out infinite .2s !important}
+.crowd-band-e{animation:crowdV18A 6.6s ease-in-out infinite .5s !important}
+@keyframes crowdV18A{0%,100%{transform:translate3d(0,0,0)}40%{transform:translate3d(-2px,0,0)}70%{transform:translate3d(2px,-1px,0)}}
+@keyframes crowdV18B{0%,100%{transform:translate3d(0,0,0)}30%{transform:translate3d(2px,-1px,0)}65%{transform:translate3d(-2px,0,0)}}
+@keyframes crowdV18C{0%,100%{transform:translate3d(0,0,0)}45%{transform:translate3d(1px,-1px,0)}80%{transform:translate3d(-1px,0,0)}}
+
+.fence-signs{
+  top:154px !important;
+  height:78px !important;
+  left:112px !important;
+  right:28px !important;
+  border-bottom:none !important;
+}
+.fence-signs::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:6px !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#8d6338,#6b4827) !important;
+  z-index:0 !important;
+}
+.fence-sign{z-index:2 !important}
+.today-flag,.finish-ahead{top:198px !important}
+.track-lanes{padding:262px 18px 104px !important}
+
+.lane{min-height:248px !important}
+.lane-track{height:182px !important;overflow:hidden !important}
+.horse-wrap{
+  position:absolute !important;
+  top:2px !important;
+  width:404px !important;
+  height:194px !important;
+  transform:translateX(-50%) !important;
+  transition:left .95s cubic-bezier(.2,.75,.2,1) !important;
+  pointer-events:none !important;
+  overflow:hidden !important;
+  z-index:4 !important;
+}
+.racer-rodster.horse-wrap{width:418px !important;height:198px !important}
+.racer-bike.horse-wrap{width:392px !important;height:186px !important}
+.racer-motion,.racer-picture{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  animation:none !important;
+  transform:none !important;
+}
+.motion-asset,.racer-asset{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  clip-path:none !important;
+  transform:none !important;
+}
+.speed-streaks,.speed-streak{opacity:.08 !important}
+.dust-cloud{opacity:.08 !important}
+.road-shadow{left:26% !important;right:22% !important;bottom:12px !important;opacity:.16 !important}
+.racer-bike .road-shadow{left:18% !important;right:17% !important}
+.racer-rodster .road-shadow{left:24% !important;right:18% !important}
+
+@media (max-width: 900px){
+  .top-crowd{left:10px !important;right:10px !important;top:8px !important;height:116px !important;gap:6px !important}
+  .fence-signs{top:120px !important;left:84px !important;right:18px !important;height:72px !important}
+  .today-flag,.finish-ahead{top:160px !important}
+  .track-lanes{padding:214px 12px 84px !important}
+  .lane{min-height:222px !important}
+  .lane-track{height:158px !important}
+  .horse-wrap{width:320px !important;height:154px !important;top:6px !important}
+  .racer-rodster.horse-wrap{width:330px !important;height:158px !important}
+  .racer-bike.horse-wrap{width:312px !important;height:148px !important}
+}
+
+/* ===== v19: revert racer animation feel, enlarge crowd without overlap ===== */
+.top-crowd{
+  position:absolute !important;
+  z-index:7 !important;
+  left:14px !important;
+  right:14px !important;
+  top:8px !important;
+  height:188px !important;
+  display:grid !important;
+  grid-template-columns:repeat(6, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  align-items:end !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.top-crowd::after{display:none !important;content:none !important}
+.bottom-crowd{display:none !important;height:0 !important;overflow:hidden !important}
+.top-crowd .crowd-band{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  margin:0 !important;
+  min-width:0 !important;
+  transform-origin:center bottom !important;
+}
+.crowd-band-img{
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.16)) !important;
+}
+.crowd-band-a{animation:crowdV19A 5.8s ease-in-out infinite !important}
+.crowd-band-b{animation:crowdV19B 6.3s ease-in-out infinite .25s !important}
+.crowd-band-c{animation:crowdV19C 5.1s ease-in-out infinite .55s !important}
+.crowd-band-d{animation:crowdV19A 6.1s ease-in-out infinite .4s !important}
+.crowd-band-e{animation:crowdV19B 5.6s ease-in-out infinite .15s !important}
+.crowd-band-f{animation:crowdV19C 6.0s ease-in-out infinite .75s !important}
+@keyframes crowdV19A{0%,100%{transform:translate3d(0,0,0)}35%{transform:translate3d(-2px,0,0)}68%{transform:translate3d(2px,-1px,0)}}
+@keyframes crowdV19B{0%,100%{transform:translate3d(0,0,0)}40%{transform:translate3d(2px,-1px,0)}75%{transform:translate3d(-2px,0,0)}}
+@keyframes crowdV19C{0%,100%{transform:translate3d(0,0,0)}30%{transform:translate3d(1px,-1px,0)}65%{transform:translate3d(-1px,0,0)}}
+
+.fence-signs{
+  top:172px !important;
+  height:88px !important;
+  left:112px !important;
+  right:28px !important;
+  border-bottom:none !important;
+}
+.fence-signs::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#8b6035,#6f4928) !important;
+  z-index:0 !important;
+}
+.fence-sign{z-index:2 !important}
+.today-flag,.finish-ahead{top:222px !important}
+.track-lanes{padding:286px 18px 103px !important}
+
+.lane{min-height:246px !important}
+.lane-track{height:178px !important;overflow:hidden !important}
+.horse-wrap{
+  position:absolute !important;
+  top:10px !important;
+  width:380px !important;
+  height:176px !important;
+  transform:translateX(-50%) !important;
+  transition:left .9s cubic-bezier(.2,.75,.2,1) !important;
+  pointer-events:none !important;
+  overflow:hidden !important;
+  z-index:4 !important;
+}
+.racer-rodster.horse-wrap{width:392px !important;height:182px !important}
+.racer-bike.horse-wrap{width:372px !important;height:170px !important}
+.racer-motion,.racer-picture{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  animation:none !important;
+  transform:none !important;
+}
+.motion-asset,.racer-asset{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  clip-path:none !important;
+  transform:none !important;
+  image-rendering:auto !important;
+}
+.speed-streaks,.speed-streak{opacity:.12 !important}
+.dust-cloud{opacity:.12 !important}
+.road-shadow{opacity:.18 !important;left:27% !important;right:23% !important;bottom:12px !important}
+
+@media (max-width:900px){
+  .top-crowd{left:8px !important;right:8px !important;top:10px !important;height:132px !important;gap:4px !important}
+  .fence-signs{top:122px !important;left:86px !important;right:18px !important;height:82px !important}
+  .today-flag,.finish-ahead{top:170px !important}
+  .track-lanes{padding:224px 12px 84px !important}
+  .lane{min-height:226px !important}
+  .lane-track{height:160px !important}
+  .horse-wrap{width:318px !important;height:146px !important;top:8px !important}
+  .racer-rodster.horse-wrap{width:326px !important;height:150px !important}
+  .racer-bike.horse-wrap{width:312px !important;height:142px !important}
+}
+
+/* ===== v20: much larger, wider top crowd without overlap ===== */
+.top-crowd{
+  left:8px !important;
+  right:8px !important;
+  top:0 !important;
+  height:290px !important;
+  grid-template-columns:repeat(4, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  align-items:end !important;
+}
+.top-crowd .crowd-band{
+  overflow:hidden !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+}
+.crowd-band-img{
+  width:118% !important;
+  height:118% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+}
+.fence-signs{
+  top:246px !important;
+  height:92px !important;
+  left:112px !important;
+  right:28px !important;
+}
+.today-flag,.finish-ahead{top:298px !important}
+.track-lanes{padding:360px 18px 103px !important}
+
+@media (max-width:900px){
+  .top-crowd{
+    left:6px !important;
+    right:6px !important;
+    top:0 !important;
+    height:188px !important;
+    grid-template-columns:repeat(4, minmax(0, 1fr)) !important;
+    gap:4px !important;
+  }
+  .crowd-band-img{
+    width:116% !important;
+    height:116% !important;
+  }
+  .fence-signs{
+    top:158px !important;
+    left:86px !important;
+    right:18px !important;
+    height:82px !important;
+  }
+  .today-flag,.finish-ahead{top:210px !important}
+  .track-lanes{padding:270px 12px 84px !important}
+}
+
+/* ===== v21 broadcast track redesign ===== */
+.track-stage{
+  min-height:990px !important;
+  overflow:hidden !important;
+}
+
+/* Big single-row crowd */
+.top-crowd{
+  position:absolute !important;
+  z-index:7 !important;
+  left:14px !important;
+  right:14px !important;
+  top:8px !important;
+  height:158px !important;
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:5px !important;
+  align-items:end !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.top-crowd::after{display:none !important;content:none !important}
+.bottom-crowd{display:none !important;height:0 !important}
+.top-crowd .crowd-band{
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  min-width:0 !important;
+}
+.crowd-band-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.14)) !important;
+}
+.crowd-band-a{animation:crowdBroadcastA 6s ease-in-out infinite !important}
+.crowd-band-b{animation:crowdBroadcastB 6.5s ease-in-out infinite .2s !important}
+.crowd-band-c{animation:crowdBroadcastC 5.7s ease-in-out infinite .5s !important}
+.crowd-band-d{animation:crowdBroadcastA 6.3s ease-in-out infinite .35s !important}
+.crowd-band-e{animation:crowdBroadcastB 5.9s ease-in-out infinite .1s !important}
+.crowd-band-f{animation:crowdBroadcastC 6.2s ease-in-out infinite .6s !important}
+@keyframes crowdBroadcastA{0%,100%{transform:translateX(0)}45%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@keyframes crowdBroadcastB{0%,100%{transform:translateX(0)}35%{transform:translateX(2px)}70%{transform:translateX(-2px)}}
+@keyframes crowdBroadcastC{0%,100%{transform:translateX(0)}40%{transform:translateX(1px)}72%{transform:translateX(-1px)}}
+
+/* Fence / countdown directly below crowd */
+.fence-signs{
+  top:158px !important;
+  left:88px !important;
+  right:28px !important;
+  height:72px !important;
+  border-bottom:none !important;
+}
+.fence-signs::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:2px !important;
+  height:7px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#8b6035,#6d4828) !important;
+  z-index:0 !important;
+}
+.fence-sign{z-index:2 !important;padding:7px 10px !important;font-size:12px !important}
+.today-flag,.finish-ahead{top:204px !important}
+
+/* New broadcast leaderboard */
+.track-leaderboard{
+  position:absolute;
+  z-index:6;
+  left:18px;
+  right:18px;
+  top:238px;
+  height:82px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+.leader-chip{
+  min-width:0;
+  display:grid;
+  grid-template-columns:34px 38px minmax(0,1fr);
+  align-items:center;
+  gap:7px;
+  padding:8px 9px;
+  border:1px solid rgba(255,255,255,.12);
+  border-top:3px solid var(--racer-accent);
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(14,43,70,.97),rgba(7,29,50,.97));
+  box-shadow:0 7px 18px rgba(0,0,0,.16);
+}
+.leader-rank{
+  width:34px;height:34px;
+  display:grid;place-items:center;
+  border-radius:10px;
+  background:var(--gold);
+  color:#17120b;
+  font-size:14px;
+  font-weight:950;
+}
+.leader-avatar{
+  width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:2px solid rgba(255,255,255,.18);
+}
+.leader-copy{min-width:0;display:flex;flex-direction:column;gap:1px}
+.leader-copy strong{font-size:13px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leader-copy span{font-size:10px;line-height:1.15;color:#dce9f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leader-copy em{font-size:9px;line-height:1.1;color:#ffd681;font-style:normal;font-weight:900;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Five compact lanes - art is the star */
+.track-lanes{
+  position:relative !important;
+  z-index:3 !important;
+  padding:334px 16px 42px !important;
+  display:grid !important;
+  gap:0 !important;
+}
+.broadcast-lane{
+  position:relative !important;
+  min-height:122px !important;
+  display:grid !important;
+  grid-template-columns:34px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:5px !important;
+  border-bottom:1px dashed rgba(83,43,22,.30) !important;
+  overflow:hidden !important;
+}
+.broadcast-lane:last-child{border-bottom:none !important}
+.broadcast-lane::after{display:none !important}
+.lane-number{
+  width:26px;height:26px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:rgba(8,34,56,.84);
+  border:2px solid var(--racer-accent);
+  color:#fff;
+  font-size:11px;font-weight:900;
+}
+.broadcast-lane .lane-track{
+  position:relative !important;
+  height:120px !important;
+  overflow:hidden !important;
+}
+.broadcast-lane .lane-line{
+  left:0 !important;
+  right:6px !important;
+  top:76% !important;
+  height:3px !important;
+  background:linear-gradient(90deg,rgba(78,39,19,.82),rgba(96,49,24,.98)) !important;
+}
+.broadcast-lane .lane-line::after{right:0 !important}
+
+.horse-wrap{
+  position:absolute !important;
+  top:-9px !important;
+  width:380px !important;
+  height:138px !important;
+  transform:translateX(-50%) !important;
+  transition:left .9s cubic-bezier(.2,.75,.2,1) !important;
+  pointer-events:none !important;
+  overflow:hidden !important;
+  z-index:4 !important;
+}
+.racer-rodster.horse-wrap{width:392px !important;height:142px !important}
+.racer-bike.horse-wrap{width:374px !important;height:136px !important}
+.racer-motion,.racer-picture{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  animation:none !important;
+  transform:none !important;
+}
+.motion-asset,.racer-asset{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  clip-path:none !important;
+  transform:none !important;
+}
+.runner-caption{
+  position:absolute;
+  z-index:7;
+  left:50%;
+  top:2px;
+  transform:translateX(-50%);
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(7,26,43,.84);
+  border:1px solid rgba(255,255,255,.13);
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+.speed-streaks,.speed-streak{opacity:.08 !important}
+.dust-cloud{opacity:.08 !important}
+.road-shadow{opacity:.15 !important;left:28% !important;right:24% !important;bottom:8px !important}
+.track-bottom-decor{height:28px !important}
+.grass-strip{height:16px !important}
+.flower-row{height:12px !important}
+
+@media(max-width:900px){
+  .track-stage{min-height:1210px !important}
+  .top-crowd{left:8px !important;right:8px !important;top:8px !important;height:118px !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;overflow:hidden !important}
+  .top-crowd .crowd-band:nth-child(n+4){display:none !important}
+  .fence-signs{top:118px !important;left:70px !important;right:15px !important;height:70px !important}
+  .today-flag,.finish-ahead{top:158px !important}
+  .track-leaderboard{top:198px !important;left:10px !important;right:10px !important;height:auto !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:6px !important}
+  .track-leaderboard .leader-chip:last-child{grid-column:1 / -1 !important}
+  .track-lanes{padding:398px 10px 38px !important}
+  .broadcast-lane{min-height:150px !important;grid-template-columns:28px minmax(0,1fr) !important}
+  .broadcast-lane .lane-track{height:148px !important}
+  .horse-wrap{width:315px !important;height:142px !important;top:0 !important}
+  .racer-rodster.horse-wrap{width:326px !important;height:146px !important}
+  .racer-bike.horse-wrap{width:310px !important;height:138px !important}
+}
+
+
+/* ===== v22 cleanup: bigger single-row crowd, left lane cards, no clipping ===== */
+.track-head p{max-width:760px}
+.track-leaderboard{display:none !important}
+.track-stage{
+  min-height:1038px !important;
+  overflow:hidden !important;
+}
+.top-crowd{
+  position:absolute !important;
+  z-index:8 !important;
+  left:14px !important;
+  right:14px !important;
+  top:6px !important;
+  height:196px !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:4px !important;
+  padding:0 !important;
+  align-items:end !important;
+  overflow:hidden !important;
+}
+.top-crowd::after{display:none !important;content:none !important}
+.top-crowd .crowd-band{
+  position:relative !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+}
+.crowd-band-img{
+  width:158% !important;
+  height:122% !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.16)) !important;
+}
+.crowd-pos-left .crowd-band-img{object-position:15% bottom !important}
+.crowd-pos-midleft .crowd-band-img{object-position:38% bottom !important}
+.crowd-pos-midright .crowd-band-img{object-position:62% bottom !important}
+.crowd-pos-right .crowd-band-img{object-position:85% bottom !important}
+.crowd-band-a{animation:crowdV22A 6.2s ease-in-out infinite !important}
+.crowd-band-b{animation:crowdV22B 6.7s ease-in-out infinite .25s !important}
+.crowd-band-c{animation:crowdV22C 5.8s ease-in-out infinite .45s !important}
+.crowd-band-d{animation:crowdV22A 6.4s ease-in-out infinite .15s !important}
+@keyframes crowdV22A{0%,100%{transform:translateX(0)}50%{transform:translateX(-2px)}}
+@keyframes crowdV22B{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+@keyframes crowdV22C{0%,100%{transform:translateX(0)}50%{transform:translateX(1px)}}
+.bottom-crowd{display:none !important;height:0 !important}
+.fence-signs{
+  top:188px !important;
+  left:106px !important;
+  right:28px !important;
+  height:62px !important;
+  border-bottom:none !important;
+  z-index:7 !important;
+}
+.fence-signs::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  height:5px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#865b33,#6a4528) !important;
+  z-index:0 !important;
+}
+.fence-sign{
+  z-index:2 !important;
+  padding:8px 11px !important;
+  font-size:13px !important;
+  letter-spacing:.05em !important;
+}
+.today-flag,.finish-ahead{top:220px !important}
+.track-lanes{
+  position:relative !important;
+  z-index:4 !important;
+  padding:262px 18px 40px !important;
+  display:grid !important;
+  gap:6px !important;
+}
+.broadcast-lane{
+  position:relative !important;
+  min-height:134px !important;
+  display:grid !important;
+  grid-template-columns:194px minmax(0,1fr) !important;
+  gap:10px !important;
+  align-items:center !important;
+  border-bottom:1px dashed rgba(83,43,22,.28) !important;
+  overflow:visible !important;
+}
+.broadcast-lane:last-child{border-bottom:none !important}
+.broadcast-lane::after,.lane-number,.runner-caption{display:none !important}
+.lane-card{
+  position:relative;
+  min-height:88px;
+  display:grid;
+  grid-template-columns:40px 44px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  padding:10px 10px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.11);
+  border-top:3px solid var(--racer-accent);
+  background:linear-gradient(180deg,rgba(14,43,70,.98),rgba(7,28,47,.98));
+  box-shadow:0 9px 20px rgba(0,0,0,.16);
+}
+.lane-rank{
+  width:38px;height:38px;
+  border-radius:12px;
+  background:var(--gold);
+  color:#16120d;
+  display:grid;place-items:center;
+  font-size:15px;font-weight:950;
+}
+.lane-avatar{
+  width:44px;height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid rgba(255,255,255,.18);
+}
+.lane-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+.lane-copy strong{font-size:15px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane-copy span{font-size:11px;line-height:1.15;color:#dce8f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane-copy em{font-size:10px;line-height:1.1;color:#ffd681;font-style:normal;font-weight:900;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.broadcast-lane .lane-track{
+  position:relative !important;
+  height:132px !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+}
+.broadcast-lane .lane-line{
+  position:absolute !important;
+  left:0 !important;
+  right:8px !important;
+  top:79% !important;
+  height:3px !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,rgba(80,40,20,.85),rgba(110,58,29,.96)) !important;
+}
+.broadcast-lane .lane-line::after{display:none !important}
+.horse-wrap{
+  position:absolute !important;
+  top:-10px !important;
+  width:390px !important;
+  height:170px !important;
+  transform:translateX(-50%) !important;
+  transition:left .9s cubic-bezier(.2,.75,.2,1) !important;
+  pointer-events:none !important;
+  overflow:visible !important;
+  z-index:5 !important;
+}
+.racer-whitesw0n.horse-wrap{width:385px !important}
+.racer-tom.horse-wrap{width:388px !important}
+.racer-tatiana.horse-wrap{width:396px !important}
+.racer-rodster.horse-wrap{width:410px !important;height:176px !important}
+.racer-bike.horse-wrap{width:390px !important;height:168px !important}
+.racer-motion{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  overflow:visible !important;
+}
+.racer-frame{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform-origin:50% 68% !important;
+  will-change:opacity, transform;
+}
+.racer-frame-a{opacity:1}
+.racer-frame-b{opacity:0}
+.motion-gallop .racer-frame-a{animation:frameA 1.05s steps(1,end) infinite, gallopTiltA 1.05s ease-in-out infinite}
+.motion-gallop .racer-frame-b{animation:frameB 1.05s steps(1,end) infinite, gallopTiltB 1.05s ease-in-out infinite}
+.motion-charge .racer-frame-a{animation:frameA 1.05s steps(1,end) infinite, chargeTiltA 1.05s ease-in-out infinite}
+.motion-charge .racer-frame-b{animation:frameB 1.05s steps(1,end) infinite, chargeTiltB 1.05s ease-in-out infinite}
+.motion-pedal .racer-frame-a{animation:frameA 1.05s steps(1,end) infinite, pedalTiltA 1.05s ease-in-out infinite}
+.motion-pedal .racer-frame-b{animation:frameB 1.05s steps(1,end) infinite, pedalTiltB 1.05s ease-in-out infinite}
+@keyframes frameA{0%,49.999%{opacity:1}50%,100%{opacity:0}}
+@keyframes frameB{0%,49.999%{opacity:0}50%,100%{opacity:1}}
+@keyframes gallopTiltA{0%,100%{transform:rotate(-.4deg) scale(1)}50%{transform:rotate(.55deg) scale(1.012,.996)}}
+@keyframes gallopTiltB{0%,100%{transform:rotate(.35deg) scale(1.006,.998)}50%{transform:rotate(-.5deg) scale(.998,1.004)}}
+@keyframes chargeTiltA{0%,100%{transform:rotate(-.25deg) scale(1.01,.996)}50%{transform:rotate(.45deg) scale(1.018,.992)}}
+@keyframes chargeTiltB{0%,100%{transform:rotate(.2deg) scale(1.008,.995)}50%{transform:rotate(-.4deg) scale(1.016,.99)}}
+@keyframes pedalTiltA{0%,100%{transform:rotate(-.2deg) scale(1)}50%{transform:rotate(.28deg) scale(1.01,.998)}}
+@keyframes pedalTiltB{0%,100%{transform:rotate(.15deg) scale(1)}50%{transform:rotate(-.24deg) scale(1.008,.999)}}
+.speed-streaks,.speed-streak{opacity:.07 !important}
+.streak-c{opacity:.09 !important}
+.dust-cloud{opacity:.10 !important;bottom:18px !important}
+.road-shadow{opacity:.16 !important;left:29% !important;right:23% !important;bottom:8px !important}
+.track-bottom-decor{height:26px !important}
+.grass-strip{height:15px !important}
+.flower-row{height:11px !important}
+.vote-tools,.vote-log-panel{display:none}
+.vote-tools.owner-visible,.vote-log-panel.owner-visible{display:flex}
+.vote-log-panel.owner-visible{display:block}
+@media(max-width:900px){
+  .track-stage{min-height:1180px !important}
+  .top-crowd{left:8px !important;right:8px !important;top:8px !important;height:148px !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  .fence-signs{top:144px !important;left:72px !important;right:16px !important;height:60px !important}
+  .today-flag,.finish-ahead{top:186px !important}
+  .track-lanes{padding:230px 10px 36px !important;gap:8px !important}
+  .broadcast-lane{grid-template-columns:1fr !important;min-height:170px !important;gap:6px !important}
+  .lane-card{grid-template-columns:34px 40px minmax(0,1fr) !important}
+  .broadcast-lane .lane-track{height:126px !important}
+  .horse-wrap{width:320px !important;height:150px !important;top:-6px !important}
+  .racer-rodster.horse-wrap{width:334px !important;height:156px !important}
+  .racer-bike.horse-wrap{width:322px !important;height:148px !important}
+}
+
+/* ===== v23 clipping fix: restore v21 animation speed/quality, remove all clipping boxes ===== */
+.broadcast-lane,
+.broadcast-lane .lane-track,
+.horse-wrap,
+.racer-motion,
+.racer-picture-safe{
+  overflow:visible !important;
+}
+.racer-motion{
+  animation:none !important;
+  transform:none !important;
+}
+.racer-frame{display:none !important}
+.racer-picture-safe{
+  position:absolute !important;
+  inset:-28px -44px -30px -44px !important;
+  display:block !important;
+  z-index:3 !important;
+  pointer-events:none !important;
+}
+.racer-asset-safe{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  clip-path:none !important;
+  max-width:none !important;
+  max-height:none !important;
+  filter:drop-shadow(0 9px 10px rgba(50,28,14,.20)) !important;
+  image-rendering:auto !important;
+}
+.racer-rodster .racer-asset-safe{filter:drop-shadow(0 10px 12px rgba(5,10,18,.32)) !important}
+/* keep v21's encoded timing: 120ms horse/llama/knight frames, 100ms Bike frames. No CSS bobbing added. */
+.horse-wrap{top:-12px !important;height:178px !important}
+.racer-whitesw0n.horse-wrap{width:400px !important}
+.racer-tom.horse-wrap{width:405px !important}
+.racer-tatiana.horse-wrap{width:410px !important}
+.racer-rodster.horse-wrap{width:430px !important;height:184px !important}
+.racer-bike.horse-wrap{width:402px !important;height:176px !important}
+.broadcast-lane .lane-track{height:138px !important}
+.broadcast-lane{min-height:140px !important}
+.speed-streak{z-index:1 !important}
+.dust-cloud,.road-shadow{z-index:1 !important}
+@media(max-width:900px){
+  .horse-wrap{width:330px !important;height:154px !important;top:-6px !important}
+  .racer-whitesw0n.horse-wrap{width:330px !important}
+  .racer-tom.horse-wrap{width:334px !important}
+  .racer-tatiana.horse-wrap{width:338px !important}
+  .racer-rodster.horse-wrap{width:348px !important;height:160px !important}
+  .racer-bike.horse-wrap{width:332px !important;height:154px !important}
+  .racer-picture-safe{inset:-22px -34px -24px -34px !important}
+}
+
+
+/* ===== v24 refinement: wider left cards, smoother crowd placement, current-week signs ===== */
+.broadcast-lane{
+  grid-template-columns:246px minmax(0,1fr) !important;
+  gap:14px !important;
+}
+.lane-card{
+  min-height:96px !important;
+  padding:10px 12px !important;
+  grid-template-columns:40px 44px minmax(0,1fr) !important;
+}
+.lane-copy strong{
+  font-size:16px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+.lane-copy span,
+.lane-copy em{
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+.lane-copy span{font-size:12px !important; line-height:1.16 !important;}
+.lane-copy em{font-size:11px !important; line-height:1.14 !important;}
+
+.top-crowd{
+  left:14px !important;
+  right:14px !important;
+  top:18px !important;
+  height:166px !important;
+}
+.top-crowd .crowd-band{
+  overflow:hidden !important;
+}
+.crowd-band-img{
+  width:164% !important;
+  height:136% !important;
+  max-width:none !important;
+  object-fit:cover !important;
+  object-position:center bottom !important;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.16)) !important;
+}
+.fence-signs{
+  top:170px !important;
+  left:106px !important;
+  right:28px !important;
+  height:68px !important;
+}
+.fence-sign{
+  padding:8px 12px !important;
+  font-size:13px !important;
+}
+.today-flag,.finish-ahead{top:208px !important;}
+.track-lanes{padding:246px 18px 40px !important;}
+
+@media(max-width:900px){
+  .broadcast-lane{grid-template-columns:1fr !important;}
+  .top-crowd{top:12px !important;height:126px !important;}
+  .crowd-band-img{width:170% !important;height:134% !important;}
+  .fence-signs{top:132px !important;left:72px !important;right:16px !important;height:64px !important;}
+  .today-flag,.finish-ahead{top:172px !important;}
+  .track-lanes{padding:214px 10px 36px !important;}
+}
+
+
+/* ===== v25: smoother animation assets + alternating crowd art only ===== */
+.crowd-band-img{
+  width:164% !important;
+  height:136% !important;
+  max-width:none !important;
+  object-fit:cover !important;
+  object-position:center bottom !important;
+}
+.crowd-kind-alt .crowd-band-img{object-position:center bottom !important;}
+.racer-asset-safe{
+  image-rendering:auto !important;
+  transform:translateZ(0) !important;
+  backface-visibility:hidden !important;
+}
+
+
+/* ===== v26: v25 base, crisper sprite playback + four distinct crowd groups ===== */
+.racer-sprite-window-v26{
+  overflow:hidden !important;
+  background:transparent !important;
+}
+.racer-sprite-strip-v26{
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  background-repeat:no-repeat !important;
+  background-size:2100% 100% !important;
+  background-position:0 0;
+  animation:v26SpritePlay 1.6s steps(20,end) infinite !important;
+  will-change:background-position;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  filter:drop-shadow(0 9px 10px rgba(50,28,14,.20));
+}
+.racer-rodster .racer-sprite-strip-v26{filter:drop-shadow(0 10px 12px rgba(5,10,18,.32));}
+.racer-static-v26{
+  display:none !important;
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+}
+@keyframes v26SpritePlay{
+  from{background-position:0 0;}
+  to{background-position:100% 0;}
+}
+/* Keep the exact v25 geometry/placement. Crowd images differ only in people/art. */
+.crowd-kind-alt-one .crowd-band-img,
+.crowd-kind-alt-two .crowd-band-img,
+.crowd-kind-alt-three .crowd-band-img{object-position:center bottom !important;}
+@media(prefers-reduced-motion:reduce){
+  .racer-sprite-strip-v26{display:none !important;animation:none !important;}
+  .racer-static-v26{display:block !important;}
+}
+
+
+/* ===== v27: Tatiana stride fix, current-sign rail, arrow depth marker ===== */
+.today-flag{display:none !important}
+.finish-ahead{
+  right:18px !important;
+  min-width:118px !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:8px 18px 8px 78px !important;
+  font-size:42px !important;
+  line-height:1 !important;
+  color:#ffe6ad !important;
+  background:linear-gradient(180deg,rgba(124,77,39,.82),rgba(97,56,27,.90)) !important;
+  border:1px solid rgba(255,240,208,.18) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.14) !important;
+}
+.finish-ahead::before{
+  content:"";
+  position:absolute;
+  left:20px;
+  top:50%;
+  width:42px;
+  height:6px;
+  border-radius:999px;
+  background:rgba(255,230,173,.88);
+  transform:translateY(-50%);
+}
+.current-marker{z-index:2 !important}
+.finish-line-marker{
+  position:absolute !important;
+  right:4px !important;
+  bottom:8px !important;
+  width:36px !important;
+  height:58px !important;
+  z-index:3 !important;
+}
+.finish-line-marker .finish-pole{
+  position:absolute;bottom:0;width:4px;height:58px;border-radius:2px;background:#6d4828;
+}
+.finish-line-marker .pole-left{left:4px}
+.finish-line-marker .pole-right{right:4px}
+.finish-line-marker .finish-flag{
+  position:absolute;left:8px;right:8px;top:0;height:34px;border:1px solid rgba(0,0,0,.12);
+  background:linear-gradient(45deg,#fff 25%,#1b1b1b 25%,#1b1b1b 50%,#fff 50%,#fff 75%,#1b1b1b 75%,#1b1b1b 100%);
+  background-size:12px 12px;box-shadow:0 4px 8px rgba(0,0,0,.14);
+}
+.compact-meter .meter-pointer{left:8px !important}
+.compact-meter .meter-pointer::before{
+  left:18px !important;top:50% !important;width:0 !important;height:0 !important;transform:translateY(-50%) !important;
+  border-top:10px solid transparent !important;border-bottom:10px solid transparent !important;border-right:16px solid currentColor !important;
+}
+.compact-meter .meter-pointer span{
+  margin-left:36px !important;display:inline-flex !important;align-items:center !important;gap:7px !important;
+  padding:7px 11px !important;font-size:11px !important;font-weight:950 !important;color:#15212c !important;
+  box-shadow:0 5px 12px rgba(0,0,0,.18) !important;
+}
+.pointer-icon{font-size:14px;line-height:1}
+.meter-pointer.tone-high{color:#a9f29f !important}.meter-pointer.tone-high span{background:#e8ffe1 !important}
+.meter-pointer.tone-mid{color:#d9e96d !important}.meter-pointer.tone-mid span{background:#fff4bf !important}
+.meter-pointer.tone-lower{color:#f1b35f !important}.meter-pointer.tone-lower span{background:#ffe3bf !important}
+.meter-pointer.tone-deep{color:#ef7a69 !important}.meter-pointer.tone-deep span{background:#ffd0c9 !important}
+.racer-tatiana.horse-wrap{width:420px !important;height:180px !important}
+.racer-tatiana .racer-sprite-window-v26{overflow:visible !important}
+.racer-tatiana .racer-sprite-strip-v26{background-size:2000% 100% !important;animation:v27TatianaSpritePlay 1.6s steps(20,end) infinite !important;filter:drop-shadow(0 9px 10px rgba(50,28,14,.20)) !important;}
+@keyframes v27TatianaSpritePlay{from{background-position:0 0;}to{background-position:100% 0;}}
+@media(max-width:900px){
+  .finish-ahead{font-size:32px !important;min-width:88px !important;padding-left:58px !important}
+  .finish-ahead::before{left:14px;width:30px;height:5px}
+  .racer-tatiana.horse-wrap{width:344px !important;height:158px !important}
+}
+
+
+/* ===== v29: fixed Tatiana animation + horse-track fence + clean Oct 6 / meter pointer ===== */
+.crowd-fence{
+  position:absolute !important;
+  z-index:9 !important;
+  left:14px !important;
+  right:14px !important;
+  top:166px !important;
+  height:42px !important;
+  pointer-events:none !important;
+  background:
+    linear-gradient(to bottom,transparent 0 5px,#f5f0df 5px 12px,transparent 12px 25px,#f5f0df 25px 32px,transparent 32px),
+    repeating-linear-gradient(90deg,transparent 0 54px,#e8e0cb 54px 61px,transparent 61px 116px);
+  filter:drop-shadow(0 3px 2px rgba(80,42,20,.28));
+}
+.crowd-fence::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;height:5px;
+  border-radius:999px;
+  background:rgba(95,55,27,.30);
+}
+.fence-signs{top:190px !important;height:68px !important;}
+.track-lanes{padding-top:266px !important;}
+.today-flag{display:none !important;}
+.finish-ahead{
+  top:211px !important;
+  right:22px !important;
+  min-width:0 !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#ffe8b2 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  font-weight:950 !important;
+}
+.finish-ahead::before{display:none !important;content:none !important;}
+.finish-ahead span{font-size:25px !important;text-shadow:0 2px 5px rgba(69,35,14,.45);}
+.finish-ahead b{font-size:43px !important;line-height:.8 !important;font-weight:500 !important;text-shadow:0 2px 5px rgba(69,35,14,.45);}
+
+/* Tatiana uses 12 separate fixed-canvas images. Only the pose changes; her x-position never animates. */
+.racer-tatiana.horse-wrap{
+  width:410px !important;
+  height:180px !important;
+  overflow:visible !important;
+}
+.racer-tatiana .racer-frame-window-v29{
+  position:absolute !important;
+  inset:-32px -46px -32px -46px !important;
+  overflow:visible !important;
+  pointer-events:none !important;
+}
+.tatiana-frame-v29{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  clip-path:none !important;
+  filter:drop-shadow(0 9px 10px rgba(50,28,14,.20)) !important;
+  user-select:none !important;
+  -webkit-user-drag:none !important;
+}
+.racer-tatiana .racer-sprite-strip-v26{display:none !important;animation:none !important;}
+
+/* Meter pointer lives to the right of the gradient bar, with its arrow pointing back to the exact low. */
+.compact-meter .meter-pointer{
+  left:65px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  transform:translateY(-50%) !important;
+  white-space:nowrap !important;
+  z-index:8 !important;
+}
+.compact-meter .meter-pointer::before{display:none !important;content:none !important;}
+.compact-meter .meter-pointer .pointer-arrow{
+  display:inline-block !important;
+  margin:0 !important;
+  font-size:27px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  color:currentColor !important;
+  text-shadow:0 2px 5px rgba(0,0,0,.12);
+}
+.compact-meter .meter-pointer .pointer-price{
+  display:inline-block !important;
+  margin:0 !important;
+  padding:7px 10px !important;
+  border-radius:12px !important;
+  color:#17212a !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  box-shadow:0 5px 12px rgba(0,0,0,.18) !important;
+}
+.meter-pointer.tone-high .pointer-price{background:#e8ffe1 !important;}
+.meter-pointer.tone-mid .pointer-price{background:#fff4bf !important;}
+.meter-pointer.tone-lower .pointer-price{background:#ffe3bf !important;}
+.meter-pointer.tone-deep .pointer-price{background:#ffd0c9 !important;}
+
+@media(max-width:900px){
+  .crowd-fence{top:122px !important;left:8px !important;right:8px !important;height:34px !important;background:
+    linear-gradient(to bottom,transparent 0 4px,#f5f0df 4px 10px,transparent 10px 20px,#f5f0df 20px 26px,transparent 26px),
+    repeating-linear-gradient(90deg,transparent 0 42px,#e8e0cb 42px 48px,transparent 48px 88px) !important;}
+  .fence-signs{top:143px !important;}
+  .finish-ahead{top:164px !important;right:14px !important;gap:8px !important;}
+  .finish-ahead span{font-size:18px !important;}
+  .finish-ahead b{font-size:31px !important;}
+  .track-lanes{padding-top:222px !important;}
+  .racer-tatiana.horse-wrap{width:342px !important;height:158px !important;}
+  .racer-tatiana .racer-frame-window-v29{inset:-25px -38px -26px -38px !important;}
+  .compact-meter .meter-pointer{left:58px !important;gap:4px !important;}
+  .compact-meter .meter-pointer .pointer-arrow{font-size:22px !important;}
+}
+
+/* ===== final crowd fit polish: preserve crowd size but avoid cutting off top signs ===== */
+.top-crowd{
+  top:20px !important;
+  height:156px !important;
+}
+.top-crowd .crowd-band{
+  overflow:hidden !important;
+}
+.crowd-band-img{
+  width:158% !important;
+  height:128% !important;
+  max-width:none !important;
+  object-fit:cover !important;
+  object-position:center bottom !important;
+}
+@media(max-width:900px){
+  .top-crowd{
+    top:13px !important;
+    height:120px !important;
+  }
+  .crowd-band-img{
+    width:164% !important;
+    height:126% !important;
+  }
+}
+
+
+/* ===== v30: alphabetical lanes, fixed WhiteSw0n/Tom frames, visible week sign, compact bookie cards ===== */
+.fence-signs{z-index:12 !important;}
+.fence-sign{z-index:13 !important;}
+.crowd-fence{z-index:9 !important;}
+
+/* Fixed image swaps eliminate strip wraparound/clipping and browser texture blur. */
+.racer-whitesw0n.horse-wrap,
+.racer-tom.horse-wrap{overflow:visible !important;}
+.racer-frame-window-v30{
+  position:absolute !important;
+  inset:-38px -70px -38px -70px !important;
+  overflow:visible !important;
+  pointer-events:none !important;
+}
+.fixed-racer-frame-v30{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  clip-path:none !important;
+  image-rendering:auto !important;
+  backface-visibility:hidden !important;
+  filter:drop-shadow(0 9px 10px rgba(50,28,14,.20)) !important;
+  user-select:none !important;
+  -webkit-user-drag:none !important;
+}
+.racer-whitesw0n .racer-sprite-strip-v26,
+.racer-tom .racer-sprite-strip-v26{display:none !important;animation:none !important;}
+.racer-whitesw0n.horse-wrap{width:410px !important;height:182px !important;}
+.racer-tom.horse-wrap{width:415px !important;height:184px !important;}
+.whitesw0n-window-v30{inset:-42px -76px -42px -76px !important;}
+.tom-window-v30{inset:-42px -84px -42px -76px !important;}
+
+/* Compact Bookie Board: same information, much less vertical space. */
+.bookie-board{padding:14px !important;}
+.odds-grid{gap:10px !important;}
+.odds-card{padding:11px !important;border-radius:16px !important;}
+.odds-top{min-height:58px !important;gap:9px !important;}
+.odds-avatar{width:34px !important;height:34px !important;}
+.odds-top h3{font-size:22px !important;}
+.odds-top p{margin-top:2px !important;font-size:13px !important;line-height:1.2 !important;}
+.odds-stats{gap:7px !important;margin:9px 0 !important;}
+.odds-stats div{padding:8px !important;border-radius:11px !important;}
+.odds-stats span{font-size:10px !important;}
+.odds-stats strong{margin-top:3px !important;font-size:20px !important;}
+.odds-stats small{font-size:9px !important;}
+.vote-form{gap:7px !important;}
+.discord-input{padding:9px 10px !important;border-radius:10px !important;font-size:13px !important;}
+.member-check{font-size:12px !important;gap:6px !important;}
+.bet-btn{padding:10px 12px !important;border-radius:11px !important;font-size:13px !important;}
+
+@media(max-width:900px){
+  .racer-whitesw0n.horse-wrap{width:338px !important;height:158px !important;}
+  .racer-tom.horse-wrap{width:342px !important;height:160px !important;}
+  .racer-frame-window-v30{inset:-30px -50px -30px -50px !important;}
+  .whitesw0n-window-v30{inset:-34px -56px -34px -56px !important;}
+  .tom-window-v30{inset:-34px -64px -34px -56px !important;}
+}
+
+
+/* v30.1 fixed-frame sizing correction: preserve original cell alignment at high resolution. */
+.racer-frame-window-v30{inset:-24px -40px -24px -40px !important;}
+.whitesw0n-window-v30{inset:-28px -46px -28px -46px !important;}
+.tom-window-v30{inset:-28px -52px -28px -46px !important;}
+@media(max-width:900px){
+  .racer-frame-window-v30{inset:-20px -34px -20px -34px !important;}
+  .whitesw0n-window-v30{inset:-22px -38px -22px -38px !important;}
+  .tom-window-v30{inset:-22px -44px -22px -38px !important;}
+}
+
+/* ===== v31 end-user Discord entry + public Paddock Picks preview ===== */
+.discord-entry-panel{
+  margin:14px 0 16px;
+  padding:14px 16px;
+  border:1px solid rgba(112,155,255,.24);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(32,48,86,.82),rgba(18,28,50,.92));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+.discord-entry-copy{min-width:0;max-width:720px}
+.entry-kicker{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.preview-mode-badge,.verified-pill{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;
+  font-size:10px;font-weight:900;letter-spacing:.07em;
+}
+.preview-mode-badge{background:rgba(255,190,73,.13);border:1px solid rgba(255,190,73,.28);color:#ffd994}
+.verified-pill{background:rgba(86,211,153,.12);border:1px solid rgba(86,211,153,.27);color:#9bf0c4}
+.discord-entry-panel h3{margin:2px 0 4px;font-size:19px}
+.discord-entry-panel p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}
+.entry-privacy{margin-top:7px;color:#cbd8eb;font-size:11px;line-height:1.35}
+.discord-entry-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:240px}
+.discord-entry-actions small{max-width:260px;text-align:right;color:var(--muted);font-size:10px;line-height:1.35}
+.discord-login-btn{
+  width:auto;min-width:205px;padding:11px 15px;border:0;border-radius:11px;
+  background:#5865f2;color:#fff;font-weight:900;font-size:13px;cursor:pointer;
+  box-shadow:0 7px 18px rgba(15,20,50,.25);
+}
+.discord-login-btn:hover{filter:brightness(1.06)}
+.verified-member-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%}
+.member-avatar,.initials-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#5865f2,#3540a4);color:white;font-weight:950;font-size:15px;border:2px solid rgba(255,255,255,.22)}
+.verified-member-copy h3{margin:1px 0 3px}.verified-member-copy p{font-size:12px}
+.entry-status-box{min-width:128px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);text-align:right}
+.entry-status-box.locked{background:rgba(86,211,153,.07);border-color:rgba(86,211,153,.20)}
+.entry-status-box span,.entry-status-box small{display:block;color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.entry-status-box strong{display:block;margin:2px 0;font-size:14px}
+.compact-vote-form{margin-top:8px!important}
+.compact-vote-form .bet-btn{min-height:34px!important;padding:7px 10px!important;font-size:11px!important}
+
+.paddock-board{margin-top:18px;padding:18px!important}
+.paddock-head{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.paddock-kicker{font-size:10px;font-weight:900;letter-spacing:.09em;color:#f4c777;margin-bottom:4px}
+.paddock-head h2{margin:0 0 4px;font-size:25px}
+.paddock-head p{margin:0;color:var(--muted);font-size:13px}
+.verified-count{display:flex;flex-direction:column;align-items:flex-end;padding:8px 11px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+.verified-count strong{font-size:21px;line-height:1}.verified-count span{margin-top:3px;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.paddock-preview-note{display:block;margin-top:10px;padding:7px 10px;border-radius:10px;background:rgba(255,190,73,.08);border:1px solid rgba(255,190,73,.17);color:#f0d59f;font-size:10px}
+.paddock-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
+.paddock-team{min-width:0;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(9,18,34,.58);overflow:hidden}
+.paddock-team-head{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:7px;padding:8px;border-bottom:1px solid rgba(255,255,255,.07)}
+.paddock-racer-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid rgba(255,255,255,.14)}
+.paddock-team-head strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paddock-team-head span{display:block;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paddock-team-head b{min-width:22px;height:22px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.08);font-size:10px}
+.supporter-list{padding:5px 7px 7px;display:flex;flex-direction:column;gap:4px;min-height:58px}
+.supporter{display:grid;grid-template-columns:23px minmax(0,1fr) auto;align-items:center;gap:5px;padding:3px 2px;font-size:9px}
+.supporter-avatar{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:rgba(88,101,242,.24);border:1px solid rgba(127,139,255,.28);color:#e5e8ff;font-size:8px;font-weight:900}
+.supporter span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.supporter em{font-style:normal;color:#75dca8;font-size:9px}
+.empty-supporters{padding:7px 2px;color:var(--muted);font-size:9px;line-height:1.35}
+
+@media(max-width:1050px){.paddock-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){
+  .discord-entry-panel{align-items:stretch;flex-direction:column;padding:12px}
+  .discord-entry-actions{align-items:stretch;min-width:0}.discord-entry-actions small{text-align:left}
+  .discord-login-btn{width:100%}
+  .verified-member-row{grid-template-columns:44px minmax(0,1fr)}
+  .member-avatar,.initials-avatar{width:44px;height:44px}
+  .entry-status-box{grid-column:1/-1;text-align:left;min-width:0}
+  .paddock-head{align-items:flex-start}.verified-count{flex:0 0 auto}
+  .paddock-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:430px){.paddock-grid{grid-template-columns:1fr}.paddock-head{flex-direction:column}.verified-count{align-items:flex-start}}
+
+/* ===== v32: Tom + WhiteSw0n clean-source repair; depth-meter/sign polish ===== */
+/* Bike, Rodster and Tatiana are intentionally untouched. */
+.racer-whitesw0n.horse-wrap{
+  width:415px !important;
+  height:184px !important;
+  overflow:visible !important;
+}
+.racer-tom.horse-wrap{
+  width:418px !important;
+  height:188px !important;
+  overflow:visible !important;
+}
+.whitesw0n-window-v30{
+  inset:-12px -70px -12px -60px !important;
+  overflow:visible !important;
+}
+.tom-window-v30{
+  inset:-12px -76px -12px -60px !important;
+  overflow:visible !important;
+}
+.fixed-racer-frame-v30{
+  overflow:visible !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  image-rendering:auto !important;
+}
+
+/* The current week/day marker sits entirely below the horse-track fence. */
+.fence-signs{
+  top:210px !important;
+  height:46px !important;
+  z-index:12 !important;
+}
+.fence-sign{z-index:13 !important;}
+
+/* Smaller pointer, with a dedicated meter column so it never overlaps Race low. */
+.meter-layout{
+  grid-template-columns:118px minmax(0,1fr) !important;
+  gap:8px !important;
+}
+.compact-meter .meter-pointer{
+  left:50px !important;
+  gap:2px !important;
+  z-index:8 !important;
+}
+.compact-meter .meter-pointer .pointer-arrow{
+  font-size:18px !important;
+  line-height:1 !important;
+}
+.compact-meter .meter-pointer .pointer-price{
+  padding:4px 6px !important;
+  border-radius:9px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  box-shadow:0 3px 8px rgba(0,0,0,.16) !important;
+}
+
+@media(max-width:900px){
+  .racer-whitesw0n.horse-wrap{width:344px !important;height:160px !important;}
+  .racer-tom.horse-wrap{width:348px !important;height:162px !important;}
+  .whitesw0n-window-v30{inset:-10px -52px -10px -44px !important;}
+  .tom-window-v30{inset:-10px -58px -10px -44px !important;}
+  .fence-signs{top:158px !important;height:46px !important;}
+  .meter-layout{grid-template-columns:106px minmax(0,1fr) !important;gap:6px !important;}
+  .compact-meter .meter-pointer{left:46px !important;gap:1px !important;}
+  .compact-meter .meter-pointer .pointer-arrow{font-size:16px !important;}
+  .compact-meter .meter-pointer .pointer-price{font-size:8px !important;padding:4px 5px !important;}
+}

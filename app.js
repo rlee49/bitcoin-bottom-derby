@@ -1,0 +1,803 @@
+(() => {
+  const config = window.RACE_CONFIG;
+  const community = window.DERBY_COMMUNITY || { previewMode: true, serverName: 'Discord community', sampleEntries: [] };
+  const racers = config.racers;
+  const officialRacers = [...racers].sort((a, b) => a.name.localeCompare(b.name));
+  const trackRacers = [...officialRacers];
+  const racerFrameUrls = Object.fromEntries(['rodster','tatiana','bike','tom','whitesw0n'].map((id) => [
+    id,
+    Array.from({length: 12}, (_, i) => `assets/realistic-v43/${id}/frame-${String(i).padStart(2, '0')}.png`)
+  ]));
+  const racerFrameTiming = { rodster: 100, tatiana: 100, bike: 96, tom: 98, whitesw0n: 100 };
+  const racerFrameOffset = { rodster: 0, tatiana: 3, bike: 6, tom: 9, whitesw0n: 2 };
+  const racerLastFrame = {};
+  let racerAnimationStart = 0;
+
+  function preloadRacerFrames() {
+    return Promise.all(Object.values(racerFrameUrls).flat().map((src) => new Promise((resolve) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = resolve;
+      img.onerror = resolve;
+      img.src = src;
+    })));
+  }
+  const tatianaFrameUrls = [0,2,3,4,5,6,7,8,11,8,7,6,5,4,3,2].map((i) => `assets/racers/tatiana-v29/frame-${String(i).padStart(2, '0')}.png`);
+  const whitesw0nFrameUrls = Array.from({length: 8}, (_, i) => `assets/racers/whitesw0n-v32/frame-${String(i).padStart(2, '0')}.png`);
+  const tomFrameUrls = Array.from({length: 8}, (_, i) => `assets/racers/tom-v32/frame-${String(i).padStart(2, '0')}.png`);
+  [...tatianaFrameUrls, ...whitesw0nFrameUrls, ...tomFrameUrls].forEach((src) => { const img = new Image(); img.src = src; });
+  let tatianaLastFrame = -1;
+  let whitesw0nLastFrame = -1;
+  let tomLastFrame = -1;
+  const state = {
+    currentPrice: config.startPrice,
+    previousPrice: config.startPrice,
+    officialLow: config.startPrice,
+    dailyCandles: [],
+    hourlyLows: [],
+    lastUpdated: null,
+    lastDailyClose: null,
+    prevDailyClose: null,
+    completedDailyCloses: 0,
+    localVotes: loadVoteCounts(),
+    voteLog: loadVoteLog(),
+    userPick: loadUserPick(),
+    probabilities: {},
+    liveLeaders: ['tom', 'tatiana'],
+    finalProjectedWinner: 'tom',
+    volatility: 0.035,
+    motionCycle: -1,
+    verifiedUser: loadVerifiedDiscordUser(),
+    publicEntries: loadPreviewPublicEntries(),
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function isOwnerView() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ownerLog') === (config.betting.ownerLogKey || '');
+    } catch (_) { return false; }
+  }
+
+  function configureOwnerVoteTools() {
+    const tools = document.querySelector('.vote-tools');
+    const panel = $('vote-log-panel');
+    if (!tools || !panel) return;
+    if (isOwnerView()) {
+      tools.classList.add('owner-visible');
+      panel.classList.add('owner-visible');
+    } else {
+      tools.classList.remove('owner-visible');
+      panel.classList.remove('owner-visible');
+      panel.textContent = '';
+    }
+  }
+
+  function init() {
+    $('title').textContent = config.title;
+    $('subtitle').textContent = config.subtitle;
+    $('bet-note').textContent = config.betting.note;
+    configureOwnerVoteTools();
+    renderCrowds();
+    renderFenceSigns();
+    attachVoteToolButtons();
+    render();
+    tickClock();
+    setInterval(tickClock, 1000);
+    preloadRacerFrames().then(() => {
+      racerAnimationStart = performance.now();
+      document.body.classList.add('v40-animation-ready');
+      requestAnimationFrame(animateRacersInPlace);
+    });
+    refreshAll();
+    setInterval(refreshTicker, config.data.liveRefreshMs);
+    setInterval(refreshHistory, config.data.historyRefreshMs);
+  }
+
+  function animateRacersInPlace(now) {
+    const elapsed = Math.max(0, now - racerAnimationStart);
+    Object.keys(racerFrameUrls).forEach((id) => {
+      const step = Math.floor(elapsed / racerFrameTiming[id]) + racerFrameOffset[id];
+      const frame = ((step % 12) + 12) % 12;
+      if (racerLastFrame[id] === frame) return;
+      racerLastFrame[id] = frame;
+      const nextSrc = racerFrameUrls[id][frame];
+      document.querySelectorAll(`.v40-racer-frame[data-racer="${id}"]`).forEach((img) => {
+        const current = img.getAttribute('src') || '';
+        if (current !== nextSrc) img.setAttribute('src', nextSrc);
+      });
+    });
+    requestAnimationFrame(animateRacersInPlace);
+  }
+
+  async function refreshAll() {
+    await Promise.all([refreshTicker(), refreshHistory()]);
+    render();
+  }
+
+  async function refreshTicker() {
+    try {
+      const resp = await fetch(config.data.tickerUrl, { headers: { Accept: 'application/json' } });
+      if (!resp.ok) throw new Error('ticker failed');
+      const data = await resp.json();
+      const price = Number(data.price);
+      if (price > 0) {
+        state.previousPrice = state.currentPrice;
+        state.currentPrice = price;
+        state.lastUpdated = new Date();
+        render();
+      }
+    } catch (e) {
+      try {
+        const resp = await fetch(config.data.fallbackTickerUrl);
+        const data = await resp.json();
+        const price = Number(data?.bitcoin?.usd);
+        if (price > 0) {
+          state.previousPrice = state.currentPrice;
+          state.currentPrice = price;
+          state.lastUpdated = new Date();
+          render();
+        }
+      } catch (_) {}
+    }
+  }
+
+  async function refreshHistory() {
+    const now = new Date();
+    try {
+      state.dailyCandles = await fetchCandles(new Date(config.startDate), now, 86400);
+      state.dailyCandles.sort((a, b) => a[0] - b[0]);
+      const completed = state.dailyCandles.filter((c) => c[0] + 86400 <= Math.floor(now.getTime() / 1000));
+      state.completedDailyCloses = completed.length;
+      if (completed.length) {
+        state.lastDailyClose = Number(completed[completed.length - 1][4]);
+        state.prevDailyClose = completed.length > 1 ? Number(completed[completed.length - 2][4]) : null;
+      }
+      state.hourlyLows = await fetchCandles(new Date(config.startDate), now, 3600);
+      state.hourlyLows.sort((a, b) => a[0] - b[0]);
+      const lows = state.hourlyLows.map((c) => Number(c[1])).filter((v) => Number.isFinite(v));
+      state.officialLow = lows.length ? Math.min(...lows, state.currentPrice) : Math.min(state.currentPrice, config.startPrice);
+      state.volatility = computeVolatility(state.dailyCandles);
+      render();
+    } catch (e) {
+      console.warn('history refresh failed', e);
+      render();
+    }
+  }
+
+  async function fetchCandles(startDate, endDate, granularity) {
+    const out = [];
+    const maxPoints = 290;
+    const chunkSeconds = granularity * maxPoints;
+    let cursor = Math.floor(startDate.getTime() / 1000);
+    const end = Math.floor(endDate.getTime() / 1000);
+    while (cursor < end) {
+      const chunkEnd = Math.min(cursor + chunkSeconds, end);
+      const url = new URL(config.data.candlesUrl);
+      url.searchParams.set('granularity', String(granularity));
+      url.searchParams.set('start', new Date(cursor * 1000).toISOString());
+      url.searchParams.set('end', new Date(chunkEnd * 1000).toISOString());
+      const resp = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!resp.ok) throw new Error('candles failed');
+      const data = await resp.json();
+      data.forEach((row) => out.push(row));
+      cursor = chunkEnd + granularity;
+    }
+    const seen = new Set();
+    return out.filter((row) => {
+      if (seen.has(row[0])) return false;
+      seen.add(row[0]);
+      return true;
+    });
+  }
+
+  function computeVolatility(candles) {
+    const closes = candles.map((c) => Number(c[4])).filter(Boolean);
+    if (closes.length < 4) return 0.035;
+    const returns = [];
+    for (let i = 1; i < closes.length; i++) returns.push(Math.log(closes[i] / closes[i - 1]));
+    const sample = returns.slice(-20);
+    const mean = sample.reduce((a, b) => a + b, 0) / sample.length;
+    const variance = sample.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / Math.max(1, sample.length - 1);
+    return Math.max(0.02, Math.min(0.08, Math.sqrt(variance)));
+  }
+
+  function render() {
+    state.liveLeaders = getLiveLeaders();
+    state.probabilities = calculateBookieProbabilities();
+    state.finalProjectedWinner = Object.entries(state.probabilities).sort((a, b) => b[1] - a[1])[0]?.[0] || 'tom';
+    renderAltHeader();
+    renderTopStats();
+    renderStatusRibbon();
+    renderInsightRow();
+    renderTrack();
+    renderFenceSigns();
+    renderDepthCard();
+    renderRulesCard();
+    renderCommunityEntry();
+    renderBookieBoard();
+    renderPaddockPicks();
+    renderVoteLog();
+    renderFooterMetrics();
+  }
+
+  function renderAltHeader() {
+    const priceEl = $('alt-btc-price');
+    const deltaEl = $('alt-btc-delta');
+    const end = new Date(config.endDate).getTime();
+    const total = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const mins = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+    if ($('alt-days')) $('alt-days').textContent = String(days).padStart(2, '0');
+    if ($('alt-hours')) $('alt-hours').textContent = String(hours).padStart(2, '0');
+    if ($('alt-mins')) $('alt-mins').textContent = String(mins).padStart(2, '0');
+    if ($('alt-secs')) $('alt-secs').textContent = String(secs).padStart(2, '0');
+    if (priceEl) priceEl.textContent = formatCurrency(state.currentPrice);
+    if (deltaEl) {
+      const delta = state.currentPrice - state.previousPrice;
+      const pct = state.previousPrice ? (delta / state.previousPrice) * 100 : 0;
+      deltaEl.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+      deltaEl.style.color = pct >= 0 ? '#45db9a' : '#ff5366';
+    }
+  }
+
+  function renderTopStats() {
+    const delta = state.currentPrice - state.previousPrice;
+    const leaders = state.liveLeaders.map((id) => findRacer(id).name).join(' & ');
+    $('top-stats').innerHTML = [
+      statCard('BTC/USD', formatCurrency(state.currentPrice), `${delta >= 0 ? '▲' : '▼'} ${formatCurrency(Math.abs(delta))} since last update`, delta >= 0 ? 'up' : 'down'),
+      statCard('Official race low', formatCurrency(state.officialLow), `Lowest trade since ${formatDateShort(config.startDate)}`, ''),
+      statCard('Countdown', formatCountdownToEnd(), 'until the October 6 finish', ''),
+      statCard('Live target in front', leaders, state.liveLeaders.length > 1 ? 'Both bottom-is-in calls remain alive' : findRacer(state.liveLeaders[0]).displayPick, 'accent')
+    ].join('');
+  }
+
+  function statCard(label, value, small, tone = '') {
+    return `<article class="card stat-card ${tone}"><span class="stat-label">${label}</span><strong class="stat-value">${value}</strong><span class="stat-small">${small}</span></article>`;
+  }
+
+  function renderStatusRibbon() {
+    const names = state.liveLeaders.map((id) => findRacer(id).name);
+    const title = names.length > 1 ? `${names.join(' and ')} are tied at the front` : `${names[0]} currently leads the field`;
+    const detail = names.length > 1
+      ? 'Both “bottom is in” calls are still valid. Tom allows a dip toward $59k, while Tatiana allows a deeper flush toward $53.3k.'
+      : `${findRacer(state.liveLeaders[0]).displayPick}. ${findRacer(state.liveLeaders[0]).note || findRacer(state.liveLeaders[0]).liveRuleText}`;
+    $('status-ribbon').innerHTML = `
+      <div class="status-left"><img src="${findRacer(state.liveLeaders[0]).avatar}" alt="" class="tiny-avatar"><div><strong>${title}</strong><div>${detail}</div></div></div>
+      <div class="status-right">${state.lastUpdated ? `Coinbase live · ${formatLocalTime(state.lastUpdated)}` : 'Waiting for live BTC data…'}</div>`;
+  }
+
+  function renderInsightRow() {
+    const nextClose = countdownToNextDailyClose();
+    const favoriteId = Object.entries(state.probabilities).sort((a, b) => b[1] - a[1])[0]?.[0] || 'tom';
+    const weather = state.volatility > 0.045 ? 'Windy volatility' : state.volatility > 0.032 ? 'Cloudy volatility' : 'Calm consolidation';
+    const recap = generateRecap();
+    const crowdLeader = Object.entries(state.localVotes).sort((a, b) => b[1] - a[1])[0]?.[0] || 'tatiana';
+    $('insight-row').innerHTML = `
+      <article class="card insight-card"><div class="icon">🔔</div><div><span class="mini-title">Daily candle close</span><strong>Close Bell</strong><div>Next horse move in <span class="accent-text">${nextClose}</span></div></div></article>
+      <article class="card insight-card"><div class="icon">⛅</div><div><span class="mini-title">Track conditions</span><strong>${weather}</strong><div>Positions only update after a completed daily candle.</div></div></article>
+      <article class="card insight-card"><div class="icon">📈</div><div><span class="mini-title">Model favorite</span><strong>${findRacer(favoriteId).name}</strong><div><span class="accent-text">${state.probabilities[favoriteId].toFixed(1)}%</span> model chance · crowd favorite is ${findRacer(crowdLeader).name}</div></div></article>
+      <article class="card insight-card recap"><div class="icon">🎙️</div><div><span class="mini-title">Race recap</span><strong>${recap.title}</strong><div>${recap.body}</div></div></article>`;
+  }
+
+  function generateRecap() {
+    const leaders = state.liveLeaders.map((id) => findRacer(id).name);
+    const projected = findRacer(state.finalProjectedWinner).name;
+    if (leaders.length > 1) {
+      return {
+        title: `${leaders.join(' and ')} share the lead`,
+        body: `${leaders.join(' and ')} are both right on the broad “bottom is in” thesis. The bookie model currently leans ${projected}, but the official October 6 winner is whichever call finishes closest to Bitcoin's contest low.`
+      };
+    }
+    return {
+      title: `${leaders[0]} has the live edge`,
+      body: `${leaders[0]} owns the running lead today. ${projected} is the model favorite right now, but deeper targets can still surge if Bitcoin flushes lower before October 6.`
+    };
+  }
+
+
+  function renderTrack() {
+    $('daily-close-note').textContent = `• Positions change only after a completed daily candle at ${String(config.dailyCloseHourUtc).padStart(2, '0')}:00 UTC`;
+    $('start-price-note').textContent = `Starting gate ${formatCurrency(config.startPrice)}`;
+    const totalDays = totalDailyCloses();
+    const baseProgress = Math.min(1, state.completedDailyCloses / Math.max(1, totalDays));
+    const rankMap = liveRankMap();
+    const laneText = {
+      whitesw0n: '$37,999',
+      tatiana: 'Bottom in · max $53.3k',
+      tom: 'Bottom in · max $59k',
+      rodster: '$47,976',
+      bike: '$38,750'
+    };
+    const statusWords = {
+      whitesw0n: ['LLAMA ENERGY', 'SOFT CHAOS', 'WOOLY WISDOM', 'ALPACA ALPHA', 'NECK AND NECK', 'SPITTING FIRE', 'FLOATING LOW', 'QUIETLY CLOSING', 'FLOOF IN FLIGHT', 'PASTURE PRESSURE', 'CLOUD SOFT STRIDE', 'FUZZY FURY'],
+      tom: ['CARROT QUEST', 'HEE-HAW MODE', 'DUST KICKIN', 'SNACK ATTACK', 'EARS BACK', 'BURRO BLITZ', 'HAYWIRE RUN', 'MULE MOMENTUM', 'CARROT CRUISE', 'DONKEY DASH', 'BARNSTORMING', 'HOOFING IT'],
+      tatiana: ['MIDNIGHT GLIDE', 'BLACK HORSE MAGIC', 'SHADE SHIFT', 'DEEPER DIVE', 'SUNGLESSED SURGE', 'VELVET THUNDER', 'DARK HORSE DRIVE', 'MOONSHOT STRIDE', 'NOIR GALLOP', 'AFTERHOURS CHARGE', 'ECLIPSE RUN', 'NIGHT RIDER'],
+      rodster: ['CHARGING', 'BANNER HIGH', 'LANCE READY', 'ARMORED PUSH', 'FULL TILT', 'IRON GALLOP', 'KNIGHT MOVE', 'SPEARHEADING', 'JOUST JUICE', 'SHIELD UP', 'WARHORSE ROLL', 'BATTLE CANTER'],
+      bike: ['PEDALING', 'SPIN TO WIN', 'FULL GAS', 'CHAIN RING HOT', 'CADENCE UP', 'PEAK TORQUE', 'WHEEL TO WHEEL', 'SADDLE DOWN', 'HAMMER DOWN', 'BREAKAWAY MODE', 'AERO TUCK', 'OUT OF THE SADDLE', 'CRANKING HARD', 'PELOTON POP', 'BURNING RUBBER', 'SPRINTING AWAY']
+    };
+    const motionWordFor = (r, laneIndex) => {
+      const words = statusWords[r.id] || [];
+      if (!words.length) return '';
+      const rank = rankMap[r.id] || 5;
+      const timeBucket = Math.floor(Date.now() / 12000);
+      const seed = (state.completedDailyCloses * 5) + (laneIndex * 3) + timeBucket + rank;
+      return words[seed % words.length];
+    };
+    const badgeFor = (r) => {
+      const rank = rankMap[r.id] || 5;
+      return rank === 1 && state.liveLeaders.length > 1 ? 'T1' : String(rank);
+    };
+    const xFor = (r) => {
+      const rank = rankMap[r.id] || 5;
+      const rankAdvance = { 1: 0.17, 2: 0.13, 3: 0.10, 4: 0.07, 5: 0.045 }[rank] || 0.045;
+      return Math.min(0.88, 0.16 + baseProgress * 0.42 + rankAdvance);
+    };
+
+    $('track-leaderboard').innerHTML = '';
+    $('track-lanes').innerHTML = trackRacers.map((r, i) => {
+      const x = xFor(r);
+      const motionLine = motionWordFor(r, i);
+      return `
+        <div class="lane broadcast-lane lane-${i + 1}" style="--racer-accent:${r.color}">
+          <div class="lane-card">
+            <div class="lane-rank">${badgeFor(r)}</div>
+            <img src="${r.discordAvatar || r.avatar}" alt="${r.name} Discord avatar" class="lane-avatar">
+            <div class="lane-copy">
+              <strong>${r.name}</strong>
+              <span>${laneText[r.id] || r.displayPick}</span>
+              <em>${motionLine}</em>
+            </div>
+          </div>
+          <div class="lane-track">
+            <div class="lane-line"></div>
+            <div class="horse-wrap racer-${r.id}" style="left:${(x * 100).toFixed(1)}%">
+              ${racerArtMarkup(r)}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+
+
+  function racerArtMarkup(r) {
+    const currentFrame = racerLastFrame[r.id] ?? 0;
+    const firstFrame = racerFrameUrls[r.id]?.[currentFrame] || '';
+    return `
+      <div class="racer-motion racer-${r.id} v40-real-motion" aria-label="${r.name} realistic twelve-frame animated racer">
+        <div class="v40-real-racer-shell">
+          <img class="v40-racer-frame v40-${r.id}" data-racer="${r.id}" src="${firstFrame}" alt="${r.name} racer" draggable="false">
+        </div>
+        <span class="road-shadow"></span>
+      </div>`;
+  }
+
+  function renderDepthCard() {
+    const entries = [
+      { id: 'officialLow', value: state.officialLow, label: `Race low ${formatCompact(state.officialLow)}`, type: 'low', note: 'Current contest low' },
+      { id: 'tom', value: 59000, label: 'Tom', type: 'tom', note: '$59k' },
+      { id: 'tatiana', value: 53300, label: 'Tatiana', type: 'tatiana', note: '$53.3k' },
+      { id: 'rodster', value: 47976, label: 'Rodster', type: 'rodster', note: '$47,976' },
+      { id: 'bike', value: 38750, label: 'Bike', type: 'bike', note: '$38,750' },
+      { id: 'whitesw0n', value: 37999, label: 'WhiteSw0n', type: 'whitesw0n', note: '$37,999' }
+    ];
+    const max = Math.max(config.startPrice, state.currentPrice, 64100);
+    const min = 37000;
+    const range = Math.max(1, max - min);
+    const pctFor = (value) => Math.max(5, Math.min(95, ((max - value) / range) * 100));
+    const ticks = [64000, 59000, 53300, 48000, 39000, 38000];
+    const pointerPct = pctFor(state.officialLow);
+    const pointerTone = pointerPct < 20 ? 'tone-high' : pointerPct < 40 ? 'tone-mid' : pointerPct < 65 ? 'tone-lower' : 'tone-deep';
+    $('depth-card').innerHTML = `
+      <h2>Bitcoin Depth Meter</h2>
+      <p class="muted">The live pointer slides down the meter as BTC prints lower lows during the race.</p>
+      <div class="meter-layout">
+        <div class="meter-wrap"><div class="meter-scale compact-meter">
+          <div class="meter-bar"></div>
+          <div class="meter-pointer ${pointerTone}" style="top:${pointerPct.toFixed(1)}%"><b class="pointer-arrow">←</b><span class="pointer-price">${formatCurrency(state.officialLow)}</span></div>
+          ${ticks.map((v) => `<div class="tick" style="top:${pctFor(v).toFixed(1)}%"><span>${formatCompact(v)}</span></div>`).join('')}
+        </div></div>
+        <div class="meter-legend">
+          ${entries.map((e) => `<div class="meter-entry ${e.type}"><span class="meter-dot"></span><div><strong>${e.label}</strong><small>${e.note}</small></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="depth-trend">Depth meter trend <strong>${state.prevDailyClose && state.lastDailyClose ? (state.lastDailyClose < state.prevDailyClose ? 'Deeper' : 'Flatter') : 'Waiting for the first two daily closes'}</strong></div>`;
+  }
+
+  function renderRulesCard() {
+    $('rules-card').innerHTML = `
+      <h2>🏁 Race Info</h2>
+      <div class="race-info-grid">
+        <div class="race-info-row"><span>⏱ Race Start</span><strong>${formatDateShort(config.startDate)}</strong></div>
+        <div class="race-info-row"><span>🏁 Finish Line</span><strong>Oct 6, 2026</strong></div>
+        <div class="race-info-row"><span>🎯 Target</span><strong>Lowest BTC trade</strong></div>
+        <div class="race-info-row"><span>👥 Entry</span><strong>Verified Discord only</strong></div>
+        <div class="race-info-row"><span>🏆 Prize</span><strong>$100 in TAO</strong></div>
+      </div>
+      <button class="race-how-btn" type="button" title="Official winner is the call closest in dollars to Bitcoin's lowest trade during the contest.">ⓘ How It Works</button>`;
+  }
+
+  function renderCommunityEntry() {
+    const panel = $('discord-entry-panel');
+    if (!panel) return;
+    const user = state.verifiedUser;
+    const picked = state.userPick ? findRacer(state.userPick) : null;
+    const previewBadge = community.previewMode ? '<span class="preview-mode-badge">PREVIEW</span>' : '';
+
+    if (!user) {
+      panel.innerHTML = `
+        <div class="discord-entry-copy">
+          <div class="entry-kicker">${previewBadge}<span class="verified-pill">✓ VERIFIED ENTRY</span></div>
+          <h3>🎟 Enter the Derby</h3>
+          <p>Sign in with Discord to cast one locked pick. Anyone can watch the race.</p>
+          <div class="entry-privacy">${escapeHtml(community.publicPickDisclosure || 'Your Discord display name, avatar and Derby pick will be public.')}</div>
+        </div>
+        <div class="discord-entry-actions">
+          <button id="discord-login-btn" class="discord-login-btn">Discord&nbsp;&nbsp; Sign in to enter</button>
+          <small>The Derby never asks for your Discord password.</small>
+        </div>`;
+      $('discord-login-btn')?.addEventListener('click', previewDiscordLogin);
+      return;
+    }
+
+    const initials = initialsFor(user.name);
+    const options = officialRacers.map((r) => {
+      const chosen = picked && picked.id === r.id;
+      return `<button class="bet-btn alt-pick-option ${chosen ? 'chosen' : ''}" data-racer="${r.id}" ${picked ? 'disabled' : ''}>
+        <img src="${r.avatar}" alt="${r.name}"><strong>${r.name}</strong><span>${r.displayPick}</span>
+      </button>`;
+    }).join('');
+    panel.innerHTML = `
+      <div class="verified-member-row">
+        <div class="member-avatar initials-avatar">${escapeHtml(initials)}</div>
+        <div class="verified-member-copy">
+          <div class="entry-kicker">${previewBadge}<span class="verified-pill">✓ VERIFIED</span></div>
+          <h3>${escapeHtml(user.name)}</h3>
+          <p>${picked ? `Your Derby pick is locked: <strong>${picked.name}</strong> — ${picked.displayPick}.` : 'Choose your racer below. Your pick locks after confirmation.'}</p>
+        </div>
+        <div class="entry-status-box ${picked ? 'locked' : ''}">
+          <span>${picked ? 'YOUR PICK' : 'STATUS'}</span>
+          <strong>${picked ? picked.name : 'Ready'}</strong>
+          ${picked ? '' : '<small>One pick only</small>'}
+        </div>
+        <div class="alt-racer-options">${options}</div>
+      </div>`;
+  }
+
+  function previewDiscordLogin() {
+    if (!community.previewMode) {
+      alert('Discord login will open here after the live Discord + Supabase connection is configured.');
+      return;
+    }
+    const entered = window.prompt('Preview the verified-member experience. Enter a Discord display name:', 'DerbyFan');
+    const name = (entered || '').trim();
+    if (!name) return;
+    state.verifiedUser = { id: 'preview-local-member', name, verified: true };
+    saveVerifiedDiscordUser(state.verifiedUser);
+    render();
+  }
+
+  function renderBookieBoard() {
+    const totalVotes = totalVoteCount();
+    const userPick = state.userPick;
+    const verified = !!state.verifiedUser;
+    $('odds-grid').innerHTML = officialRacers.map((r) => {
+      const votes = state.localVotes[r.id] || 0;
+      const share = totalVotes ? votes / totalVotes : 0;
+      const prob = state.probabilities[r.id] || 0;
+      const fracOdds = simplifyOdds((100 / Math.max(prob, 1)) - 1);
+      const chosen = userPick === r.id;
+      const disabled = !!userPick || !verified;
+      const buttonText = chosen ? '✓ Your locked pick' : !verified ? 'Sign in to make a pick' : `Pick ${r.name}`;
+      return `
+        <article class="odds-card ${chosen ? 'chosen' : ''}">
+          <div class="odds-top"><img src="${r.avatar}" alt="${r.name}" class="odds-avatar"><div><h3>${r.name}</h3><p>${r.displayPick}${r.note ? `<br><small>${r.note}</small>` : ''}</p></div></div>
+          <div class="odds-stats">
+            <div><span>Model chance</span><strong>${prob.toFixed(1)}%</strong></div>
+            <div><span>Bookie odds</span><strong>${fracOdds}</strong><small>${prob.toFixed(0)}% implied</small></div>
+            <div><span>Tickets</span><strong>${votes}</strong></div>
+            <div><span>Crowd share</span><strong>${(share * 100).toFixed(0)}%</strong></div>
+          </div>
+          <div class="vote-form compact-vote-form">
+            <button class="bet-btn" data-racer="${r.id}" ${disabled ? 'disabled' : ''}>${buttonText}</button>
+          </div>
+        </article>`;
+    }).join('');
+    document.querySelectorAll('.bet-btn').forEach((btn) => btn.addEventListener('click', onBetClick));
+  }
+
+  function onBetClick(event) {
+    const racerId = event.currentTarget.getAttribute('data-racer');
+    if (state.userPick) return;
+    if (!state.verifiedUser) return alert('Sign in with Discord before making a pick.');
+    const racer = findRacer(racerId);
+    if (!window.confirm(`Lock ${racer.name} — ${racer.displayPick} as your Derby pick?\n\nYou cannot change it after submitting.`)) return;
+    const discordName = state.verifiedUser.name;
+    const oddsAtEntry = simplifyOdds((100 / Math.max(state.probabilities[racerId] || 1, 1)) - 1);
+    state.userPick = racerId;
+    state.localVotes[racerId] = (state.localVotes[racerId] || 0) + 1;
+    saveUserPick(racerId, discordName);
+    saveVoteCounts(state.localVotes);
+    addPublicEntry({ id: state.verifiedUser.id, name: discordName, racerId });
+    appendVoteLog({ ts: new Date().toISOString(), discordName, discordId: state.verifiedUser.id, racerId, racerName: racer.name, oddsAtEntry, confirmedMember: true });
+    render();
+  }
+
+  function renderPaddockPicks() {
+    const panel = $('paddock-board');
+    if (!panel) return;
+    const entries = state.publicEntries || [];
+    const groups = officialRacers.map((r) => ({ racer: r, entries: entries.filter((e) => e.racerId === r.id) }));
+    const total = entries.length;
+    const previewNote = community.previewMode
+      ? '<span class="paddock-preview-note">Preview names below are sample data so you can see the end-user layout.</span>'
+      : '';
+    panel.innerHTML = `
+      <div class="paddock-head">
+        <div>
+          <div class="paddock-kicker">🏇 PUBLIC COMMUNITY BOARD</div>
+          <h2>Paddock Picks</h2>
+          <p>See who backed each racer. Verified members appear here after their pick is locked.</p>
+        </div>
+        <div class="verified-count"><strong>${total}</strong><span>verified picks shown</span></div>
+      </div>
+      ${previewNote}
+      <div class="paddock-grid">
+        ${groups.map(({ racer, entries: fans }) => `
+          <article class="paddock-team">
+            <div class="paddock-team-head">
+              <img src="${racer.avatar}" alt="" class="paddock-racer-avatar">
+              <div><strong>${racer.name}</strong><span>${racer.displayPick}</span></div>
+              <b>${fans.length}</b>
+            </div>
+            <div class="supporter-list">
+              ${fans.length ? fans.map((fan) => `<div class="supporter"><span class="supporter-avatar">${escapeHtml(initialsFor(fan.name))}</span><span>${escapeHtml(fan.name)}</span><em>✓</em></div>`).join('') : '<div class="empty-supporters">Waiting for the first supporter…</div>'}
+            </div>
+          </article>`).join('')}
+      </div>`;
+  }
+
+  function loadPreviewPublicEntries() {
+    let entries = Array.isArray(community.sampleEntries) ? community.sampleEntries.map((e) => ({ ...e })) : [];
+    if (!community.previewMode) entries = [];
+    try {
+      const raw = localStorage.getItem('bitcoin-bottom-derby-preview-public-entry');
+      if (raw) {
+        const local = JSON.parse(raw);
+        if (local && local.id && !entries.some((e) => e.id === local.id)) entries.push(local);
+      }
+    } catch (_) {}
+    return entries;
+  }
+
+  function addPublicEntry(entry) {
+    state.publicEntries = (state.publicEntries || []).filter((e) => e.id !== entry.id);
+    state.publicEntries.push(entry);
+    try { localStorage.setItem('bitcoin-bottom-derby-preview-public-entry', JSON.stringify(entry)); } catch (_) {}
+  }
+
+  function loadVerifiedDiscordUser() {
+    try {
+      const raw = localStorage.getItem('bitcoin-bottom-derby-preview-discord-user');
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+
+  function saveVerifiedDiscordUser(user) {
+    try { localStorage.setItem('bitcoin-bottom-derby-preview-discord-user', JSON.stringify(user)); } catch (_) {}
+  }
+
+  function initialsFor(name) {
+    const parts = String(name || '?').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function renderVoteLog() {
+    if (!isOwnerView()) {
+      $('vote-log-panel').textContent = '';
+      return;
+    }
+    const lines = ['BITCOIN BOTTOM DERBY - OWNER VOTE LOG', '--------------------------------------'];
+    if (!state.voteLog.length) lines.push('No local votes recorded yet on this device.');
+    else state.voteLog.forEach((entry, idx) => { lines.push(`${idx + 1}. ${formatLogDate(entry.ts)} | Discord: ${entry.discordName}`); lines.push(`   Pick: ${entry.racerName} (${entry.racerId}) | Odds at entry: ${entry.oddsAtEntry} | Discord member confirmed: yes`); });
+    $('vote-log-panel').textContent = lines.join('\n');
+  }
+
+  function renderFooterMetrics() {
+    const projected = findRacer(state.finalProjectedWinner);
+    $('footer-metrics').innerHTML = `
+      <article class="card footer-card trophy"><div class="footer-icon">🏆</div><div><h3>The Golden Bottom Trophy</h3><p>Awarded on October 6 to the call closest to the official Bitcoin contest low.</p><strong>Exact ties become a dead heat.</strong></div></article>
+      <article class="card footer-card"><h3>Daily closes completed</h3><div class="big-number">${state.completedDailyCloses} / ${totalDailyCloses()}</div><p>${state.completedDailyCloses === 0 ? 'First daily close pending' : 'Horses step forward after each completed daily candle'}</p></article>
+      <article class="card footer-card"><h3>Projected winner if the race ended now</h3><div class="pick-chip"><img src="${projected.avatar}" alt="${projected.name}"><span>${projected.name}</span></div><p>${projected.name} currently has the strongest bookie probability based on distance to target, time left, and crowd pressure.</p></article>
+      <article class="card footer-card"><h3>Total bookie tickets</h3><div class="big-number">${totalVoteCount()}</div><p>Discord members only. Owner mode can reveal the administration vote log on approved access.</p></article>`;
+  }
+
+  function calculateBookieProbabilities() {
+    const low = state.officialLow || state.currentPrice || config.startPrice;
+    const daysLeft = Math.max(1, (new Date(config.endDate) - new Date()) / 86400000);
+    const sigmaDrop = Math.max(900, low * state.volatility * Math.sqrt(daysLeft) * 0.95 + 600);
+    const minTarget = Math.min(...officialRacers.map((r) => r.target));
+    const minValue = Math.max(1000, minTarget - 12000);
+    const maxValue = low;
+    const step = Math.max(120, Math.round((maxValue - minValue) / 420));
+    const masses = Object.fromEntries(officialRacers.map((r) => [r.id, 0]));
+    for (let x = minValue; x <= maxValue; x += step) {
+      const density = Math.exp(-0.5 * Math.pow((maxValue - x) / sigmaDrop, 2));
+      let nearest = officialRacers[0];
+      let nearestDist = Math.abs(x - officialRacers[0].target);
+      for (let i = 1; i < officialRacers.length; i++) {
+        const d = Math.abs(x - officialRacers[i].target);
+        if (d < nearestDist) { nearestDist = d; nearest = officialRacers[i]; }
+      }
+      masses[nearest.id] += density;
+    }
+    if (low > 59000) { masses.tom *= 1.08; masses.tatiana *= 1.08; }
+    let sum = Object.values(masses).reduce((a, b) => a + b, 0) || 1;
+    let probs = Object.fromEntries(Object.entries(masses).map(([k, v]) => [k, (v / sum) * 100]));
+    const totalVotes = totalVoteCount();
+    const adjusted = {};
+    officialRacers.forEach((r) => {
+      const crowdShare = totalVotes ? (state.localVotes[r.id] || 0) / totalVotes : (1 / officialRacers.length);
+      adjusted[r.id] = Math.max(1, probs[r.id] * (1 + (crowdShare - (1 / officialRacers.length)) * 0.35));
+    });
+    sum = Object.values(adjusted).reduce((a, b) => a + b, 0) || 1;
+    return Object.fromEntries(Object.entries(adjusted).map(([k, v]) => [k, (v / sum) * 100]));
+  }
+
+  function getLiveLeaders() {
+    const low = state.officialLow;
+    if (low > 59000) return ['tom', 'tatiana'];
+    if (low > 47976) return ['tatiana'];
+    if (low > 38750) return ['rodster'];
+    if (low > 37999) return ['bike'];
+    return ['whitesw0n'];
+  }
+
+  function liveRankMap() {
+    const leaders = getLiveLeaders();
+    const map = {};
+    if (leaders.length === 2) {
+      map.tom = 1; map.tatiana = 1; map.rodster = 3; map.bike = 4; map.whitesw0n = 5;
+    } else {
+      const lead = leaders[0];
+      const order = lead === 'tatiana' ? ['tatiana', 'tom', 'rodster', 'bike', 'whitesw0n']
+        : lead === 'rodster' ? ['rodster', 'tatiana', 'tom', 'bike', 'whitesw0n']
+        : lead === 'bike' ? ['bike', 'rodster', 'tatiana', 'tom', 'whitesw0n']
+        : lead === 'whitesw0n' ? ['whitesw0n', 'bike', 'rodster', 'tatiana', 'tom']
+        : ['tom', 'tatiana', 'rodster', 'bike', 'whitesw0n'];
+      order.forEach((id, idx) => (map[id] = idx + 1));
+    }
+    return map;
+  }
+
+
+  function renderCrowds() {
+    $('top-crowd').innerHTML = '';
+    $('bottom-crowd').innerHTML = '';
+  }
+
+
+  function spectatorMarkup(src, idx, row) {
+    const delay = (idx * 0.17).toFixed(2);
+    const dur = (2.15 + (idx % 4) * 0.22).toFixed(2);
+    const scale = ((row === 'top' ? 0.94 : 0.86) + (idx % 3) * 0.05).toFixed(2);
+    return `<div class="crowd-fan row-${row} crowd-${(idx % 4) + 1}" style="--delay:${delay}s;--dur:${dur}s;--scale:${scale}"><img src="${src}" alt="" class="crowd-sprite" draggable="false"></div>`;
+  }
+
+
+  
+  function renderFenceSigns() {
+    const msDay = 86400000;
+    const end = new Date(config.endDate).getTime();
+    const now = Date.now();
+    const daysRemaining = Math.max(0, Math.ceil((end - now) / msDay));
+
+    const totalDays = totalDailyCloses();
+    const baseProgress = Math.min(1, state.completedDailyCloses / Math.max(1, totalDays));
+    const rankMap = liveRankMap();
+    const advanceByRank = { 1: 0.17, 2: 0.13, 3: 0.10, 4: 0.07, 5: 0.045 };
+    const xForId = (id) => {
+      const rank = rankMap[id] || 5;
+      return Math.min(0.88, 0.16 + baseProgress * 0.42 + (advanceByRank[rank] || 0.045));
+    };
+    const leaderIds = (state.liveLeaders && state.liveLeaders.length) ? state.liveLeaders : getLiveLeaders();
+    const leaderXs = leaderIds.map(xForId);
+    const anchorX = leaderXs.length ? leaderXs.reduce((a, b) => a + b, 0) / leaderXs.length : 0.34;
+
+    const weeksLeft = Math.max(1, Math.ceil(daysRemaining / 7));
+    const label = daysRemaining > 7
+      ? `${weeksLeft} WEEK${weeksLeft === 1 ? '' : 'S'}`
+      : (daysRemaining === 7 ? '1 WEEK' : `${Math.max(1, daysRemaining)} DAY${daysRemaining === 1 ? '' : 'S'}`);
+
+    const finishMarkup = daysRemaining <= 7
+      ? `<div class="finish-line-marker" aria-hidden="true"><span class="finish-pole pole-left"></span><span class="finish-flag"></span><span class="finish-pole pole-right"></span></div>`
+      : '';
+
+    $('fence-signs').innerHTML = `<div class="fence-sign current-marker" style="left:${(anchorX * 100).toFixed(1)}%">${label}</div>${finishMarkup}`;
+  }
+
+  function attachVoteToolButtons() {
+    const dl = $('download-log-btn');
+    const clr = $('clear-local-log-btn');
+    if (dl) dl.addEventListener('click', downloadVoteLog);
+    if (clr) clr.addEventListener('click', clearVoteLog);
+  }
+
+  function downloadVoteLog() {
+    if (!isOwnerView()) return alert('Owner-only vote log. Open with your private ownerLog access key to export it.');
+    const blob = new Blob([$('vote-log-panel').textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'bitcoin-bottom-derby-vote-log.txt'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  function clearVoteLog() {
+    if (!isOwnerView()) return alert('Owner-only vote log.');
+    if (!window.confirm('Clear the locally stored vote log and local pick on this device?')) return;
+    localStorage.removeItem(config.betting.voteLogStorageKey);
+    localStorage.removeItem(config.betting.voteStorageKey);
+    localStorage.removeItem('bitcoin-bottom-derby-discord-name');
+    localStorage.removeItem('bitcoin-bottom-derby-preview-discord-user');
+    localStorage.removeItem('bitcoin-bottom-derby-preview-public-entry');
+    state.voteLog = []; state.userPick = null; state.verifiedUser = null; state.publicEntries = loadPreviewPublicEntries(); render();
+  }
+
+  function totalDailyCloses() { return Math.ceil((new Date(config.endDate) - new Date(config.startDate)) / 86400000); }
+  function totalVoteCount() { return officialRacers.reduce((sum, r) => sum + (state.localVotes[r.id] || 0), 0); }
+  function loadVoteCounts() { try { const raw = localStorage.getItem(config.betting.voteCountsStorageKey); if (raw) return { ...config.betting.seedVotes, ...JSON.parse(raw) }; } catch (_) {} return { ...config.betting.seedVotes }; }
+  function saveVoteCounts(votes) { try { localStorage.setItem(config.betting.voteCountsStorageKey, JSON.stringify(votes)); } catch (_) {} }
+  function loadVoteLog() { try { const raw = localStorage.getItem(config.betting.voteLogStorageKey); if (raw) return JSON.parse(raw); } catch (_) {} return []; }
+  function appendVoteLog(entry) { state.voteLog.push(entry); try { localStorage.setItem(config.betting.voteLogStorageKey, JSON.stringify(state.voteLog)); } catch (_) {} }
+  function loadUserPick() { try { return localStorage.getItem(config.betting.voteStorageKey); } catch (_) { return null; } }
+  function getSavedDiscordName() { try { return localStorage.getItem('bitcoin-bottom-derby-discord-name') || ''; } catch (_) { return ''; } }
+  function saveUserPick(id, discordName) { try { localStorage.setItem(config.betting.voteStorageKey, id); localStorage.setItem('bitcoin-bottom-derby-discord-name', discordName); } catch (_) {} }
+
+  function countdownToNextDailyClose() {
+    const now = new Date();
+    const next = new Date(now);
+    next.setUTCHours(config.dailyCloseHourUtc, 0, 0, 0);
+    if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+    return formatDuration(next - now);
+  }
+
+  function tickClock() {
+    renderAltHeader();
+    const countdownStat = document.querySelector('.stat-card:nth-child(3) .stat-value'); if (countdownStat) countdownStat.textContent = formatCountdownToEnd();
+    const closeBell = document.querySelector('.insight-card .accent-text'); if (closeBell) closeBell.textContent = countdownToNextDailyClose();
+    const cycle = Math.floor(Date.now() / 12000);
+    if (cycle !== state.motionCycle) {
+      state.motionCycle = cycle;
+      render();
+    }
+  }
+
+  function simplifyOdds(value) {
+    if (!Number.isFinite(value)) return '99/1';
+    const rounded = Math.max(1, Math.round(value * 2) / 2);
+    if (rounded >= 5) return `${Math.round(rounded)}/1`;
+    if (Math.abs(rounded - 0.5) < 0.01) return '1/2';
+    if (Math.abs(rounded - 1.5) < 0.01) return '3/2';
+    if (Math.abs(rounded - 2.5) < 0.01) return '5/2';
+    if (Math.abs(rounded - 3.5) < 0.01) return '7/2';
+    if (Math.abs(rounded - 4.5) < 0.01) return '9/2';
+    return `${Math.round(rounded)}/1`;
+  }
+
+  function formatCountdownToEnd() { return formatDuration(new Date(config.endDate) - new Date()); }
+  function formatDuration(ms) { const total = Math.max(0, Math.floor(ms / 1000)); const days = Math.floor(total / 86400); const hours = Math.floor((total % 86400) / 3600); const mins = Math.floor((total % 3600) / 60); const secs = total % 60; if (days > 0) return `${days}d ${hours}h`; return `${hours}h ${mins}m ${secs}s`; }
+  function formatCurrency(value) { const num = Number(value) || 0; return num.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }); }
+  function formatCompact(value) { const num = Number(value) || 0; return num >= 1000 ? `$${(num / 1000).toFixed(num >= 10000 ? 0 : 1)}k` : formatCurrency(num); }
+  function formatDateShort(dateString) { return new Date(dateString).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); }
+  function formatLocalTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+  function formatLogDate(ts) { return new Date(ts).toLocaleString(); }
+  function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+  function findRacer(id) { return racers.find((r) => r.id === id); }
+
+  init();
+})();

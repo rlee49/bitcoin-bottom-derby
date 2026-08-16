@@ -1,0 +1,22 @@
+BITCOIN BOTTOM DERBY — OWNER VOTE LOG ACCESS
+
+Public visitors do NOT see the vote log.
+
+To open owner mode, load the live site with this query string appended:
+?ownerLog=RL_BottomDerby_2026
+
+Example:
+https://YOUR-DOMAIN-HERE/?ownerLog=RL_BottomDerby_2026
+
+What happens in owner mode:
+- The owner-only vote log panel becomes visible.
+- The "Export owner vote log (.txt)" button becomes visible.
+- The export downloads a plain-text file named:
+  bitcoin-bottom-derby-vote-log.txt
+
+This is how the vote log is delivered to you:
+1. You open the site with your private ownerLog key.
+2. You click the export button.
+3. Your browser downloads the text log directly to your device.
+
+Keep the ownerLog key private.

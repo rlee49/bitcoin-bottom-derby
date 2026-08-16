@@ -1,0 +1,606 @@
+/* v33 Alternate Broadcast Build — branched from locked v32 master */
+:root{
+  --alt-border:#087fda;
+  --alt-panel:#071c35;
+  --alt-panel2:#0b2747;
+  --alt-deep:#031427;
+}
+html,body{background:#020a14!important}
+body.alternate-build{
+  min-width:320px;
+  background:
+    radial-gradient(circle at 48% -30%,rgba(22,82,145,.42),transparent 46%),
+    linear-gradient(180deg,#03101e,#020812 70%,#041121)!important;
+}
+.alternate-build .page-shell{max-width:1720px!important;margin:0 auto!important;padding:8px!important}
+.alternate-build .render-host{display:none!important}
+
+/* Broadcast header */
+.alt-header{
+  display:grid;grid-template-columns:minmax(460px,1fr) 365px 435px;gap:16px;align-items:center;
+  min-height:74px;padding:0 8px 6px;border-bottom:1px solid rgba(19,123,209,.28);
+}
+.alt-brand{display:flex;align-items:center;gap:14px;min-width:0}
+.alt-btc-mark{width:62px;height:62px;display:grid;place-items:center;font-size:57px;line-height:1;font-weight:950;color:#f6a614;text-shadow:0 4px 12px rgba(246,166,20,.25)}
+.alt-brand-copy{min-width:0}
+.alt-kicker{display:none;color:#f5bb42;font-size:9px;font-weight:950;letter-spacing:.16em}
+.alt-brand h1{margin:0!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;font-size:35px!important;line-height:1!important;font-style:italic;font-weight:1000!important;letter-spacing:-.035em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alt-brand h1::first-letter{color:#fff}
+.alt-brand #subtitle{margin:3px 0 0!important;max-width:none!important;color:#e5edf7!important;font-size:13px!important;font-weight:700;line-height:1.1!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alt-countdown{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #0b77c3;border-radius:10px;background:linear-gradient(180deg,#061b35,#041329);overflow:hidden}
+.alt-countdown div{padding:8px 8px 7px;text-align:center;border-right:1px solid rgba(29,117,190,.35)}
+.alt-countdown div:last-child{border-right:0}
+.alt-countdown strong{display:block;font-size:23px;line-height:1;font-weight:950}
+.alt-countdown span{display:block;margin-top:4px;color:#cbd9e9;font-size:9px;font-weight:900;letter-spacing:.06em}
+.alt-live-card{display:grid;grid-template-columns:46px minmax(112px,1fr) auto 130px;gap:10px;align-items:center;padding:7px 12px;border:1px solid #0b77c3;border-radius:10px;background:linear-gradient(180deg,#061b35,#041329)}
+.alt-live-btc{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#f59d12;color:#fff;font-size:28px;font-weight:950}
+.alt-live-card small{display:block;color:#d9e6f3;font-size:10px;font-weight:850}.alt-live-card strong{display:block;font-size:21px;line-height:1.1}.alt-live-card b{font-size:13px;color:#ff5366;white-space:nowrap}.alt-spark{width:130px;height:42px;color:#ff3e5d}
+
+/* Pull the existing child cards into one broadcast dashboard grid. */
+.alternate-build .content-grid{display:grid!important;grid-template-columns:minmax(0,4.35fr) minmax(292px,1.05fr)!important;grid-template-areas:"track depth" "bookie rules" "paddock paddock"!important;gap:8px!important;margin-top:0!important;align-items:stretch!important}
+.alternate-build .left-stack,.alternate-build .sidebar{display:contents!important}
+.alternate-build .track-card{grid-area:track!important}
+.alternate-build .depth-card{grid-area:depth!important}
+.alternate-build .bookie-board{grid-area:bookie!important}
+.alternate-build .rules-card{grid-area:rules!important}
+.alternate-build .paddock-board{grid-area:paddock!important}
+.alternate-build .footer-metrics{display:none!important}
+.alternate-build .card{border-radius:10px!important;border-color:rgba(16,119,199,.75)!important;background:linear-gradient(180deg,rgba(7,29,55,.98),rgba(4,18,35,.99))!important;box-shadow:0 6px 18px rgba(0,0,0,.22)!important}
+
+/* Cinematic race scene */
+.alternate-build .track-card{padding:0!important;overflow:hidden!important}
+.alternate-build .track-head{display:none!important}
+.alternate-build .track-stage{
+  min-height:535px!important;height:535px!important;border:0!important;border-radius:9px!important;overflow:hidden!important;
+  background:
+    linear-gradient(180deg,transparent 0 160px,rgba(143,72,34,.05) 160px),
+    repeating-linear-gradient(180deg,#a95f34 0 78px,#b96b3e 78px 81px)!important;
+}
+.alternate-build .track-stage::before{
+  content:""!important;position:absolute!important;z-index:0!important;left:0!important;right:0!important;top:0!important;height:165px!important;inset:auto 0 auto 0!important;
+  background:url('assets/alt-racetrack-crowd.png') center 28%/cover no-repeat!important;opacity:1!important;pointer-events:none!important;
+}
+.alternate-build .track-stage::after{content:"";position:absolute;z-index:1;left:0;right:0;top:151px;height:15px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(65,32,17,.18));border-bottom:3px solid rgba(255,247,220,.65);pointer-events:none}
+.alternate-build .top-crowd,.alternate-build .crowd-fence{display:none!important}
+.alternate-build .fence-signs{top:120px!important;left:120px!important;right:75px!important;height:34px!important;border-bottom:0!important;z-index:7!important;pointer-events:none}
+.alternate-build .fence-sign{top:0!important;padding:5px 9px!important;border:2px solid #835129!important;border-radius:6px!important;background:#8c4f26!important;color:#fff2d4!important;font-size:10px!important;box-shadow:0 3px 6px rgba(0,0,0,.2)!important}
+.alternate-build .fence-sign::before,.alternate-build .fence-sign::after{display:none!important}
+.alternate-build .finish-ahead{top:119px!important;right:14px!important;z-index:8!important;display:grid!important;gap:0!important;padding:4px 8px!important;border:2px solid rgba(255,255,255,.7)!important;border-radius:3px!important;background:#07152a!important;color:#fff!important;text-align:center!important;text-transform:uppercase!important}
+.alternate-build .finish-ahead span{font-size:12px!important;line-height:1!important}.alternate-build .finish-ahead span::after{content:"\A OCT 6";white-space:pre;color:#ff465b;font-weight:950}.alternate-build .finish-ahead b{display:none!important}
+.alternate-build .track-lanes{z-index:3!important;padding:164px 8px 12px!important;gap:0!important}
+.alternate-build .broadcast-lane{min-height:72px!important;height:72px!important;grid-template-columns:158px minmax(0,1fr)!important;gap:8px!important;border-bottom:1px solid rgba(255,240,214,.34)!important;overflow:visible!important}
+.alternate-build .broadcast-lane:nth-child(even){background:rgba(255,255,255,.012)}
+.alternate-build .lane-card{min-height:62px!important;height:62px!important;margin-left:0!important;padding:5px 7px!important;grid-template-columns:30px 34px minmax(0,1fr)!important;gap:6px!important;border:1px solid var(--racer-accent)!important;border-left:4px solid var(--racer-accent)!important;border-radius:8px!important;background:linear-gradient(180deg,rgba(5,35,64,.96),rgba(4,23,44,.98))!important;overflow:hidden!important}
+.alternate-build .lane-rank{width:30px!important;height:30px!important;border-radius:7px!important;font-size:12px!important}.alternate-build .lane-avatar{width:34px!important;height:34px!important}.alternate-build .lane-copy strong{font-size:12px!important}.alternate-build .lane-copy span{font-size:8px!important;line-height:1.08!important}.alternate-build .lane-copy em{margin-top:2px!important;font-size:7px!important;line-height:1!important}
+.alternate-build .lane-track{height:72px!important;overflow:visible!important}
+.alternate-build .lane-line{top:82%!important;height:2px!important;background:rgba(108,54,28,.62)!important}
+.alternate-build .lane-line::after{display:none!important}
+.alternate-build .horse-wrap{top:-7px!important;width:235px!important;height:88px!important;overflow:visible!important;transform:translateX(-48%)!important}
+.alternate-build .racer-bike.horse-wrap{width:230px!important;height:88px!important}
+.alternate-build .racer-rodster.horse-wrap{width:245px!important;height:90px!important}
+.alternate-build .racer-tatiana.horse-wrap{width:238px!important;height:90px!important}
+.alternate-build .racer-tom.horse-wrap{width:244px!important;height:92px!important}
+.alternate-build .racer-whitesw0n.horse-wrap{width:238px!important;height:90px!important}
+.alternate-build .racer-picture-safe,.alternate-build .racer-frame-window-v29,.alternate-build .racer-frame-window-v30,.alternate-build .racer-sprite-window-v26{overflow:visible!important}
+.alternate-build .whitesw0n-window-v30{inset:-6px -33px -6px -28px!important}.alternate-build .tom-window-v30{inset:-6px -38px -6px -30px!important}.alternate-build .racer-tatiana .racer-frame-window-v29{inset:-10px -20px!important}
+.alternate-build .track-bottom-decor{display:none!important}
+
+/* Right depth meter */
+.alternate-build .depth-card{height:535px!important;padding:12px!important;overflow:hidden!important}
+.alternate-build .depth-card h2{margin:0 0 3px!important;font-size:22px!important}.alternate-build .depth-card>.muted{font-size:11px!important;line-height:1.25!important}
+.alternate-build .meter-layout{grid-template-columns:88px minmax(0,1fr)!important;gap:5px!important;margin-top:4px!important}
+.alternate-build .meter-wrap{padding:3px 0 0!important}.alternate-build .meter-scale{height:360px!important;padding-left:50px!important;padding-right:14px!important}
+.alternate-build .meter-bar{left:35px!important;top:14px!important;bottom:14px!important;width:14px!important}.alternate-build .tick::before{left:35px!important;top:7px!important;width:22px!important}.alternate-build .tick span{left:0!important;min-width:35px!important;font-size:12px!important}
+.alternate-build .compact-meter .meter-pointer{left:42px!important;gap:1px!important}.alternate-build .compact-meter .meter-pointer .pointer-arrow{font-size:14px!important}.alternate-build .compact-meter .meter-pointer .pointer-price{padding:3px 5px!important;font-size:8px!important;border-radius:7px!important}
+.alternate-build .meter-legend{gap:7px!important}.alternate-build .meter-entry{padding:7px 8px!important;border-radius:8px!important;min-height:46px!important}.alternate-build .meter-entry strong{font-size:11px!important}.alternate-build .meter-entry small{font-size:8px!important}.alternate-build .meter-dot{width:12px!important;height:12px!important}
+.alternate-build .depth-trend{display:none!important}
+
+/* Bookie board + entry card share one row */
+.alternate-build .bookie-board{padding:10px!important;display:grid!important;grid-template-columns:minmax(360px,.95fr) minmax(430px,1.05fr)!important;grid-template-areas:"head entry" "odds entry"!important;column-gap:12px!important;align-items:start!important}
+.alternate-build .board-head{grid-area:head!important;margin:0 0 6px!important;align-items:center!important}.alternate-build .board-head h2{margin:0!important;font-size:21px!important}.alternate-build .board-head p{font-size:9px!important}.alt-section-kicker{color:#f5c45d;font-size:8px;font-weight:950;letter-spacing:.07em}.alternate-build .board-note{display:none!important}
+.alternate-build .odds-grid{grid-area:odds!important;display:grid!important;grid-template-columns:1fr!important;gap:1px!important;border:1px solid rgba(18,110,181,.35);border-radius:7px;overflow:hidden}
+.alternate-build .odds-card{display:grid!important;grid-template-columns:150px repeat(4,minmax(55px,1fr))!important;align-items:center!important;min-height:35px!important;padding:3px 6px!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;border-radius:0!important;background:rgba(7,25,47,.55)!important}
+.alternate-build .odds-card:last-child{border-bottom:0!important}.alternate-build .odds-card.chosen{outline:0!important;background:rgba(244,187,79,.08)!important}
+.alternate-build .odds-top{min-height:0!important;gap:6px!important}.alternate-build .odds-avatar{width:23px!important;height:23px!important}.alternate-build .odds-top h3{font-size:10px!important}.alternate-build .odds-top p{display:none!important}
+.alternate-build .odds-stats{display:contents!important}.alternate-build .odds-stats div{padding:0!important;background:transparent!important;text-align:center!important}.alternate-build .odds-stats span{display:none!important}.alternate-build .odds-stats strong{margin:0!important;font-size:10px!important}.alternate-build .odds-stats small{display:none!important}
+.alternate-build .compact-vote-form{display:none!important}
+.alternate-build .discord-entry-panel{grid-area:entry!important;height:100%!important;min-height:205px!important;margin:0!important;padding:10px!important;border-radius:8px!important;background:linear-gradient(180deg,rgba(13,39,72,.95),rgba(7,25,48,.97))!important;align-items:stretch!important}
+.alternate-build .discord-entry-panel h3{font-size:17px!important}.alternate-build .discord-entry-panel p{font-size:10px!important}.alternate-build .entry-privacy{font-size:9px!important}.alternate-build .discord-entry-actions{min-width:180px!important}.alternate-build .discord-login-btn{min-width:170px!important;padding:9px 12px!important;font-size:11px!important}.alternate-build .verified-member-row{grid-template-columns:38px minmax(0,1fr) 105px!important;gap:8px!important}.alternate-build .member-avatar{width:38px!important;height:38px!important;font-size:11px!important}.alternate-build .entry-status-box{min-width:105px!important}.alternate-build .vote-tools,.alternate-build .vote-log-panel{display:none!important}
+.alt-racer-options{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}.alt-pick-option{min-width:0;padding:6px 4px!important;border:1px solid rgba(87,147,204,.45)!important;border-radius:7px!important;background:#0b2748!important;color:#fff!important;font-size:9px!important;box-shadow:none!important}.alt-pick-option strong{display:block;margin-top:2px;font-size:10px}.alt-pick-option img{display:block;width:42px;height:42px;margin:0 auto 3px;border-radius:50%;object-fit:cover}.alt-pick-option.chosen{border-color:#ffd25c!important;background:rgba(255,184,48,.18)!important}.alt-pick-option[disabled]{opacity:.68!important}
+
+/* Compact Race Info */
+.alternate-build .rules-card{padding:11px!important;min-height:236px!important}.alternate-build .rules-card h2{font-size:22px!important;margin:0 0 8px!important}.alternate-build .race-info-grid{display:grid;grid-template-columns:1fr!important;border:1px solid rgba(28,116,190,.55);border-radius:8px;overflow:hidden}.alternate-build .race-info-row{display:grid;grid-template-columns:112px 1fr;min-height:34px;border-bottom:1px solid rgba(255,255,255,.08)}.alternate-build .race-info-row:last-child{border-bottom:0}.alternate-build .race-info-row span,.alternate-build .race-info-row strong{display:flex;align-items:center;padding:6px 8px;font-size:10px}.alternate-build .race-info-row span{gap:6px;font-weight:800;background:rgba(255,255,255,.015)}.alternate-build .race-info-row strong{border-left:1px solid rgba(255,255,255,.08);font-weight:650}.alternate-build .race-how-btn{width:100%;margin-top:8px;padding:6px;border:1px solid #0b77c3;border-radius:6px;background:#0b4e8c;color:white;font-size:9px;font-weight:850}
+
+/* Paddock Picks */
+.alternate-build .paddock-board{margin-top:0!important;padding:8px 10px 10px!important}.alternate-build .paddock-head{gap:10px!important}.alternate-build .paddock-kicker{display:none!important}.alternate-build .paddock-head h2{font-size:19px!important;margin:0!important}.alternate-build .paddock-head p{font-size:9px!important;white-space:nowrap}.alternate-build .verified-count{padding:4px 7px!important;border-radius:6px!important}.alternate-build .verified-count strong{font-size:14px!important}.alternate-build .verified-count span{font-size:7px!important}.alternate-build .paddock-preview-note{display:none!important}.alternate-build .paddock-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important;margin-top:7px!important}.alternate-build .paddock-team{border-radius:7px!important;background:#eaf7ff!important;color:#08203b!important}.alternate-build .paddock-team:nth-child(1){border-color:#f5b82c!important}.alternate-build .paddock-team:nth-child(2){border-color:#258df4!important}.alternate-build .paddock-team:nth-child(3){border-color:#ed4f93!important}.alternate-build .paddock-team:nth-child(4){border-color:#14c95d!important}.alternate-build .paddock-team:nth-child(5){border-color:#21d1db!important}.alternate-build .paddock-team-head{padding:5px 7px!important;background:#0a5daa!important;color:white!important;grid-template-columns:25px minmax(0,1fr) auto!important}.alternate-build .paddock-team:nth-child(1) .paddock-team-head{background:#d79408!important}.alternate-build .paddock-team:nth-child(3) .paddock-team-head{background:#ba2e69!important}.alternate-build .paddock-team:nth-child(4) .paddock-team-head{background:#079b43!important}.alternate-build .paddock-team:nth-child(5) .paddock-team-head{background:#078e99!important}.alternate-build .paddock-racer-avatar{width:25px!important;height:25px!important}.alternate-build .paddock-team-head strong{font-size:10px!important}.alternate-build .paddock-team-head span{display:none!important}.alternate-build .paddock-team-head b{background:transparent!important;color:white!important;font-size:8px!important}.alternate-build .supporter-list{min-height:80px!important;padding:5px 7px!important;gap:1px!important}.alternate-build .supporter{grid-template-columns:18px minmax(0,1fr) auto!important;padding:1px!important;font-size:8px!important;color:#0c2440!important}.alternate-build .supporter-avatar{width:18px!important;height:18px!important;font-size:6px!important;background:#183f68!important;color:white!important}.alternate-build .supporter em{color:#0b8749!important}.alternate-build .empty-supporters{font-size:8px!important;color:#40566c!important}
+
+.alt-footer{display:flex;align-items:center;justify-content:center;gap:17px;min-height:36px;margin-top:5px;border-top:1px solid rgba(19,123,209,.36);color:#c8d9ea;font-size:9px}.alt-footer i{opacity:.5}.alt-footer b{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#0b2748;color:#f5b342;font-size:11px}.alt-footer small{margin-left:auto;color:#6f94b5}
+
+@media(max-width:1200px){
+  .alt-header{grid-template-columns:1fr 300px}.alt-live-card{grid-column:1/-1}.alternate-build .content-grid{grid-template-columns:1fr!important;grid-template-areas:"track" "depth" "bookie" "rules" "paddock"!important}.alternate-build .depth-card{height:auto!important}.alternate-build .bookie-board{grid-template-columns:1fr!important;grid-template-areas:"head" "entry" "odds"!important}.alternate-build .discord-entry-panel{min-height:0!important;margin-bottom:8px!important}.alternate-build .paddock-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  .alternate-build .page-shell{padding:5px!important}.alt-header{grid-template-columns:1fr!important;gap:6px}.alt-brand h1{font-size:25px!important}.alt-brand #subtitle{font-size:10px!important}.alt-countdown{order:3}.alt-live-card{grid-column:auto;grid-template-columns:40px 1fr auto}.alt-spark{display:none}.alternate-build .track-stage{height:665px!important;min-height:665px!important}.alternate-build .broadcast-lane{height:97px!important;min-height:97px!important;grid-template-columns:120px minmax(0,1fr)!important}.alternate-build .lane-card{height:74px!important;min-height:74px!important;grid-template-columns:28px minmax(0,1fr)!important}.alternate-build .lane-avatar{display:none!important}.alternate-build .lane-track{height:97px!important}.alternate-build .horse-wrap{width:205px!important;height:92px!important}.alternate-build .paddock-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.alt-racer-options{grid-template-columns:repeat(3,minmax(0,1fr))}.alt-footer span,.alt-footer i{display:none}
+}
+
+
+/* ===== v34 realistic alternate test ===== */
+body.alternate-build::before{
+  content:"REALISTIC ALT TEST";
+  position:fixed;
+  right:10px;
+  bottom:8px;
+  z-index:999;
+  padding:3px 7px;
+  border:1px solid rgba(90,160,220,.35);
+  border-radius:6px;
+  background:rgba(2,10,20,.72);
+  color:#8db3d6;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.12em;
+  pointer-events:none;
+}
+.alternate-build .track-stage::before{
+  height:172px!important;
+  background-image:
+    linear-gradient(180deg,rgba(2,8,18,.02),rgba(2,8,18,.03)),
+    url('assets/realistic/crowd-mountains.png')!important;
+  background-position:center 56%!important;
+  background-size:cover!important;
+  filter:saturate(.94) contrast(1.03)!important;
+}
+.alternate-build .track-stage::after{
+  top:154px!important;
+  height:18px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(66,34,19,.28))!important;
+  border-bottom:3px solid rgba(242,234,213,.78)!important;
+}
+.alternate-build .fence-signs{top:121px!important}
+.alternate-build .finish-ahead{top:120px!important}
+
+.alternate-build .alt-real-motion{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:visible!important;
+  animation:altRealBob .72s ease-in-out infinite alternate!important;
+}
+.alternate-build .alt-real-racer-shell{
+  position:absolute!important;
+  z-index:3!important;
+  left:-68px!important;
+  right:-68px!important;
+  top:-74px!important;
+  bottom:-65px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+.alternate-build .alt-real-racer-img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 7px 4px rgba(42,20,8,.30)) saturate(1.04) contrast(1.03)!important;
+  transform-origin:50% 70%!important;
+}
+.alternate-build .alt-real-tatiana{transform:scale(1.13)!important}
+.alternate-build .alt-real-rodster{transform:scale(1.11)!important}
+.alternate-build .alt-real-bike{transform:scale(1.08)!important}
+.alternate-build .alt-real-tom{transform:scale(1.02)!important}
+.alternate-build .alt-real-whitesw0n{transform:scale(1.02)!important}
+.alternate-build .alt-real-target-tag{
+  position:absolute!important;
+  z-index:7!important;
+  top:-8px!important;
+  left:56%!important;
+  transform:translateX(-15%)!important;
+  padding:3px 7px!important;
+  border:1px solid color-mix(in srgb,var(--racer-accent) 80%,white 20%)!important;
+  border-radius:999px!important;
+  background:rgba(4,22,40,.92)!important;
+  color:#fff!important;
+  box-shadow:0 2px 7px rgba(0,0,0,.28)!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.alternate-build .racer-rodster .alt-real-target-tag{left:58%!important;top:-7px!important}
+.alternate-build .racer-tatiana .alt-real-target-tag{left:57%!important;top:-6px!important}
+.alternate-build .racer-bike .alt-real-target-tag{left:58%!important;top:-5px!important}
+.alternate-build .racer-tom .alt-real-target-tag{left:57%!important;top:-4px!important}
+.alternate-build .racer-whitesw0n .alt-real-target-tag{left:57%!important;top:-5px!important}
+.alternate-build .alt-real-motion .road-shadow{
+  left:25%!important;
+  right:20%!important;
+  bottom:4px!important;
+  height:10px!important;
+  background:rgba(48,27,16,.28)!important;
+  filter:blur(3px)!important;
+}
+@keyframes altRealBob{
+  0%{transform:translateY(1px) rotate(-.25deg)}
+  100%{transform:translateY(-3px) rotate(.25deg)}
+}
+
+/* Photo assets are wider/taller than the old sprite windows, so give them breathing room. */
+.alternate-build .horse-wrap{
+  overflow:visible!important;
+  z-index:5!important;
+}
+.alternate-build .lane-track{overflow:visible!important}
+.alternate-build .broadcast-lane{overflow:visible!important}
+.alternate-build .track-lanes{overflow:visible!important}
+
+/* Keep the dense mountain crowd visible while retaining the compact broadcast geometry. */
+@media(min-width:1201px){
+  .alternate-build .track-stage{height:548px!important;min-height:548px!important}
+  .alternate-build .track-lanes{padding-top:176px!important}
+}
+@media(max-width:760px){
+  .alternate-build .alt-real-racer-shell{
+    left:-50px!important;right:-50px!important;top:-58px!important;bottom:-54px!important;
+  }
+  .alternate-build .alt-real-target-tag{font-size:8px!important;padding:2px 5px!important;top:-2px!important}
+}
+
+/* ===== v35 realistic animated audit build =====
+   Full animals/legs visible, continuous multi-frame motion, no price tags over racers,
+   clean meaningful crowd signs, visible mountain skyline, playful front-row fan cameos. */
+.alternate-build .track-stage{
+  height:670px!important;
+  min-height:670px!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.02),rgba(105,56,29,.02) 31%,rgba(112,57,29,.04) 32%),
+    repeating-linear-gradient(180deg,#bb6a36 0,#bb6a36 96px,#e3a87e 97px,#e3a87e 99px)!important;
+}
+.alternate-build .track-stage::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  left:0!important;right:0!important;top:0!important;
+  height:188px!important;
+  z-index:0!important;
+  background-image:url('assets/realistic-v35/crowd-mountains-clean.png')!important;
+  background-size:cover!important;
+  background-position:center 47%!important;
+  filter:saturate(1.02) contrast(1.03)!important;
+}
+.alternate-build .track-stage::after{
+  display:block!important;
+  top:174px!important;
+  height:15px!important;
+  z-index:1!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(70,36,19,.28))!important;
+  border-bottom:3px solid rgba(242,234,213,.84)!important;
+}
+.alternate-build .track-lanes{
+  padding:182px 8px 0!important;
+  gap:0!important;
+  overflow:visible!important;
+  z-index:4!important;
+}
+.alternate-build .broadcast-lane{
+  min-height:96px!important;
+  height:96px!important;
+  grid-template-columns:158px minmax(0,1fr)!important;
+  gap:8px!important;
+  border-bottom:1px solid rgba(255,240,214,.38)!important;
+  overflow:visible!important;
+}
+.alternate-build .lane-track{
+  height:96px!important;
+  overflow:visible!important;
+}
+.alternate-build .lane-card{
+  height:82px!important;
+  min-height:82px!important;
+  align-self:center!important;
+}
+.alternate-build .horse-wrap,
+.alternate-build .racer-bike.horse-wrap,
+.alternate-build .racer-rodster.horse-wrap,
+.alternate-build .racer-tatiana.horse-wrap,
+.alternate-build .racer-tom.horse-wrap,
+.alternate-build .racer-whitesw0n.horse-wrap{
+  top:-18px!important;
+  width:280px!important;
+  height:132px!important;
+  overflow:visible!important;
+  transform:translateX(-48%)!important;
+  z-index:8!important;
+}
+.alternate-build .racer-rodster.horse-wrap{width:300px!important;height:136px!important;top:-20px!important}
+.alternate-build .racer-bike.horse-wrap{width:294px!important;height:134px!important;top:-19px!important}
+.alternate-build .racer-tom.horse-wrap{width:300px!important;height:136px!important;top:-20px!important}
+.alternate-build .racer-whitesw0n.horse-wrap{width:286px!important;height:134px!important;top:-19px!important}
+.alternate-build .v35-real-motion{
+  position:absolute!important;
+  inset:0!important;
+  overflow:visible!important;
+  animation:none!important;
+}
+.alternate-build .v35-real-racer-shell{
+  position:absolute!important;
+  z-index:4!important;
+  inset:-8px -18px -8px -18px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+.alternate-build .v35-racer-frame{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 6px 5px rgba(47,25,12,.30)) saturate(1.03) contrast(1.03)!important;
+  user-select:none!important;
+  -webkit-user-drag:none!important;
+}
+/* Race positions are communicated by horizontal placement + left card; keep track art unobstructed. */
+.alternate-build .alt-real-target-tag{display:none!important}
+.alternate-build .v35-real-motion .road-shadow{
+  left:27%!important;right:22%!important;bottom:7px!important;height:8px!important;
+  background:rgba(52,28,15,.24)!important;filter:blur(3px)!important;
+}
+/* Fun front-row cameos without replacing the realistic dense crowd or hiding the mountains. */
+.alternate-build .top-crowd{
+  display:block!important;
+  position:absolute!important;
+  z-index:2!important;
+  left:0!important;right:0!important;top:0!important;height:188px!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.alternate-build .v35-fan{
+  position:absolute!important;
+  bottom:2px!important;
+  height:92px!important;
+  width:auto!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))!important;
+}
+.alternate-build .v35-fan-frog{left:28%!important}
+.alternate-build .v35-fan-doge{right:16%!important;height:86px!important}
+.alternate-build .fence-signs{top:144px!important;z-index:6!important}
+.alternate-build .finish-ahead{top:143px!important;z-index:7!important}
+.alternate-build .crowd-fence{display:none!important}
+
+@media(max-width:900px){
+  .alternate-build .track-stage{height:735px!important;min-height:735px!important}
+  .alternate-build .track-stage::before{height:162px!important;background-position:center 48%!important}
+  .alternate-build .track-stage::after{top:148px!important}
+  .alternate-build .track-lanes{padding-top:158px!important}
+  .alternate-build .broadcast-lane{height:112px!important;min-height:112px!important;grid-template-columns:122px minmax(0,1fr)!important}
+  .alternate-build .lane-track{height:112px!important}
+  .alternate-build .horse-wrap,
+  .alternate-build .racer-bike.horse-wrap,
+  .alternate-build .racer-rodster.horse-wrap,
+  .alternate-build .racer-tatiana.horse-wrap,
+  .alternate-build .racer-tom.horse-wrap,
+  .alternate-build .racer-whitesw0n.horse-wrap{width:224px!important;height:118px!important;top:-5px!important}
+  .alternate-build .v35-fan{height:72px!important}
+  .alternate-build .v35-fan-doge{height:67px!important}
+  .alternate-build .fence-signs{top:119px!important}
+  .alternate-build .finish-ahead{top:118px!important}
+}
+
+/* ===== v40 photorealistic full release =====
+   Independent, padded twelve-frame PNGs replace every strip/window animation.
+   The track is deliberately taller so the full animals and larger labels stay readable. */
+body.alternate-build::before{display:none!important}
+.alternate-build .track-stage{
+  height:910px!important;
+  min-height:910px!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(100,49,24,.025) 25%,rgba(105,51,25,.04) 26%),
+    repeating-linear-gradient(180deg,#b86535 0,#b86535 134px,#df9e72 135px,#df9e72 138px)!important;
+}
+.alternate-build .track-stage::before{
+  height:230px!important;
+  background-image:url('assets/realistic-v43/crowd-banner.png')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  filter:saturate(1.02) contrast(1.04)!important;
+}
+.alternate-build .track-stage::after{
+  top:216px!important;
+  height:14px!important;
+  border-bottom:3px solid rgba(255,250,232,.88)!important;
+}
+.alternate-build .track-stage::after,
+.alternate-build .fence-signs,
+.alternate-build .finish-ahead{
+  display:none!important;
+  content:none!important;
+}
+.alternate-build .top-crowd{height:230px!important;overflow:hidden!important}
+.alternate-build .fence-signs{top:187px!important;z-index:6!important}
+.alternate-build .finish-ahead{top:186px!important;z-index:7!important}
+.alternate-build .track-lanes{
+  padding:230px 10px 0!important;
+  overflow:visible!important;
+}
+.alternate-build .broadcast-lane{
+  min-height:136px!important;
+  height:136px!important;
+  grid-template-columns:190px minmax(0,1fr)!important;
+  gap:10px!important;
+  overflow:visible!important;
+}
+.alternate-build .lane-track{height:136px!important;overflow:visible!important}
+.alternate-build .lane-card{
+  height:116px!important;
+  min-height:116px!important;
+  grid-template-columns:36px 42px minmax(0,1fr)!important;
+  gap:8px!important;
+  padding:8px!important;
+}
+.alternate-build .lane-rank{width:36px!important;height:36px!important;font-size:15px!important}
+.alternate-build .lane-avatar{display:block!important;width:42px!important;height:42px!important}
+.alternate-build .lane-copy strong{font-size:15px!important;line-height:1.12!important}
+.alternate-build .lane-copy span{font-size:10px!important;line-height:1.2!important}
+.alternate-build .lane-copy em{margin-top:4px!important;font-size:9px!important;line-height:1.08!important}
+.alternate-build .lane-line{top:82%!important}
+.alternate-build .horse-wrap,
+.alternate-build .racer-bike.horse-wrap,
+.alternate-build .racer-rodster.horse-wrap,
+.alternate-build .racer-tatiana.horse-wrap,
+.alternate-build .racer-tom.horse-wrap,
+.alternate-build .racer-whitesw0n.horse-wrap{
+  top:-31px!important;
+  width:276px!important;
+  height:198px!important;
+  overflow:visible!important;
+  transform:translateX(-48%)!important;
+  z-index:8!important;
+}
+.alternate-build .racer-rodster.horse-wrap{width:304px!important;height:204px!important;top:-34px!important}
+.alternate-build .racer-tom.horse-wrap{width:300px!important;height:204px!important;top:-34px!important}
+.alternate-build .racer-bike.horse-wrap{width:288px!important;height:202px!important;top:-33px!important}
+.alternate-build .v40-real-motion{
+  position:absolute!important;
+  inset:0!important;
+  overflow:visible!important;
+  animation:none!important;
+}
+.alternate-build .v40-real-racer-shell{
+  position:absolute!important;
+  z-index:4!important;
+  inset:0!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+.alternate-build .v40-racer-frame{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 6px 5px rgba(42,21,10,.32)) saturate(1.035) contrast(1.025)!important;
+  user-select:none!important;
+  -webkit-user-drag:none!important;
+}
+.alternate-build .v40-real-motion .road-shadow{
+  left:31%!important;
+  right:27%!important;
+  bottom:22px!important;
+  height:8px!important;
+  background:rgba(51,27,14,.25)!important;
+  filter:blur(3px)!important;
+}
+
+/* Approximately 20–25% larger small dashboard text at desktop viewing distance. */
+.alternate-build .depth-card{height:910px!important;padding:15px!important}
+.alternate-build .depth-card h2{font-size:27px!important}
+.alternate-build .depth-card>.muted{font-size:14px!important;line-height:1.35!important}
+.alternate-build .meter-scale{height:650px!important}
+.alternate-build .tick span{font-size:15px!important}
+.alternate-build .compact-meter .meter-pointer .pointer-price{font-size:10px!important;padding:4px 6px!important}
+.alternate-build .meter-entry{min-height:55px!important;padding:9px 10px!important}
+.alternate-build .meter-entry strong{font-size:14px!important}
+.alternate-build .meter-entry small{font-size:10px!important}
+.alternate-build .board-head h2{font-size:26px!important}
+.alternate-build .board-head p{font-size:11px!important}
+.alt-section-kicker{font-size:10px!important}
+.alternate-build .odds-card{grid-template-columns:180px repeat(4,minmax(64px,1fr))!important;min-height:44px!important;padding:5px 8px!important}
+.alternate-build .odds-avatar{width:30px!important;height:30px!important}
+.alternate-build .odds-top h3{font-size:13px!important}
+.alternate-build .odds-stats strong{font-size:13px!important}
+.alternate-build .discord-entry-panel h3{font-size:21px!important}
+.alternate-build .discord-entry-panel p{font-size:13px!important;line-height:1.35!important}
+.alternate-build .entry-privacy{font-size:11px!important}
+.alternate-build .discord-login-btn{font-size:14px!important;padding:11px 14px!important}
+.alt-pick-option{font-size:11px!important;padding:8px 5px!important}
+.alt-pick-option strong{font-size:13px!important}
+.alt-pick-option img{width:48px!important;height:48px!important}
+.alternate-build .rules-card h2{font-size:27px!important}
+.alternate-build .race-info-row{min-height:42px!important;grid-template-columns:128px 1fr!important}
+.alternate-build .race-info-row span,.alternate-build .race-info-row strong{font-size:13px!important;padding:8px 10px!important}
+.alternate-build .race-how-btn{font-size:12px!important;padding:8px!important}
+.alternate-build .paddock-head h2{font-size:24px!important}
+.alternate-build .paddock-head p{font-size:11px!important}
+.alternate-build .verified-count strong{font-size:18px!important}
+.alternate-build .verified-count span{font-size:9px!important}
+.alternate-build .paddock-racer-avatar{width:31px!important;height:31px!important}
+.alternate-build .paddock-team-head{grid-template-columns:31px minmax(0,1fr) auto!important;padding:7px 8px!important}
+.alternate-build .paddock-team-head strong{font-size:13px!important}
+.alternate-build .paddock-team-head b{font-size:11px!important}
+.alternate-build .paddock-board{
+  background:linear-gradient(145deg,#071a31 0%,#0a2442 56%,#08182c 100%)!important;
+  border:1px solid rgba(80,174,255,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 14px 34px rgba(1,9,20,.28)!important;
+}
+.alternate-build .paddock-head p{color:#a9c7e4!important}
+.alternate-build .verified-count{background:#0c2948!important;border:1px solid rgba(102,190,255,.20)!important}
+.alternate-build .paddock-team{
+  background:linear-gradient(180deg,#0b223c,#07182c)!important;
+  color:#eef7ff!important;
+  border-width:1px!important;
+  box-shadow:0 8px 20px rgba(0,5,14,.26),inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.alternate-build .paddock-team:nth-child(3){border-color:#bdc9d8!important}
+.alternate-build .paddock-team:nth-child(3) .paddock-team-head{background:#657487!important}
+.alternate-build .supporter-list{background:#061527!important;padding:8px!important;gap:5px!important}
+.alternate-build .supporter{
+  color:#dbeeff!important;
+  background:#0c2847!important;
+  border:1px solid rgba(117,181,235,.12)!important;
+  border-radius:7px!important;
+  padding:4px 5px!important;
+}
+.alternate-build .supporter-avatar{background:#163f69!important;border:1px solid rgba(154,208,255,.18)!important}
+.alternate-build .supporter em{color:#55df9a!important}
+.alternate-build .empty-supporters{color:#86a6c4!important}
+.alternate-build .supporter-list{min-height:100px!important;padding:7px 8px!important}
+.alternate-build .supporter{grid-template-columns:22px minmax(0,1fr) auto!important;font-size:10px!important;padding:2px!important}
+.alternate-build .supporter-avatar{width:22px!important;height:22px!important;font-size:8px!important}
+.alternate-build .empty-supporters{font-size:10px!important}
+
+@media(max-width:1200px){
+  .alternate-build .depth-card{height:auto!important}
+  .alternate-build .meter-scale{height:470px!important}
+}
+
+@media(max-width:900px){
+  .alternate-build .track-stage{height:880px!important;min-height:880px!important}
+  .alternate-build .track-stage::before{height:180px!important}
+  .alternate-build .track-stage::after{top:166px!important}
+  .alternate-build .top-crowd{height:180px!important}
+  .alternate-build .fence-signs{top:137px!important}
+  .alternate-build .finish-ahead{top:136px!important}
+  .alternate-build .track-lanes{padding-top:180px!important;padding-left:6px!important;padding-right:6px!important}
+  .alternate-build .broadcast-lane{height:140px!important;min-height:140px!important;grid-template-columns:138px minmax(0,1fr)!important;gap:4px!important}
+  .alternate-build .lane-track{height:140px!important}
+  .alternate-build .lane-card{height:120px!important;min-height:120px!important;grid-template-columns:32px minmax(0,1fr)!important;padding:7px!important}
+  .alternate-build .lane-avatar{display:none!important}
+  .alternate-build .horse-wrap,
+  .alternate-build .racer-bike.horse-wrap,
+  .alternate-build .racer-rodster.horse-wrap,
+  .alternate-build .racer-tatiana.horse-wrap,
+  .alternate-build .racer-tom.horse-wrap,
+  .alternate-build .racer-whitesw0n.horse-wrap{width:260px!important;height:192px!important;top:-27px!important}
+  .alternate-build .racer-rodster.horse-wrap,.alternate-build .racer-tom.horse-wrap{width:276px!important;height:198px!important;top:-30px!important}
+  .alternate-build .lane-copy strong{font-size:14px!important}
+  .alternate-build .lane-copy span{font-size:10px!important}
+  .alternate-build .lane-copy em{font-size:8px!important}
+  .alternate-build .bookie-board{grid-template-columns:1fr!important;grid-template-areas:"head" "entry" "odds"!important}
+  .alternate-build .odds-card{grid-template-columns:145px repeat(4,minmax(50px,1fr))!important}
+  .alternate-build .paddock-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
