@@ -42,6 +42,8 @@
   const state = {
     currentPrice: config.startPrice,
     previousPrice: config.startPrice,
+    priceChange24h: null,
+    sparklinePrices: [],
     officialLow: config.startPrice,
     dailyCandles: [],
     hourlyLows: [],
@@ -130,59 +132,173 @@
     render();
   }
 
-  async function refreshTicker() {
+  async function fetchJson(url) {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 10000) : null;
     try {
-      const resp = await fetch(config.data.tickerUrl, { headers: { Accept: 'application/json' } });
-      if (!resp.ok) throw new Error('ticker failed');
-      const data = await resp.json();
-      const price = Number(data.price);
-      if (price > 0) {
-        state.previousPrice = state.currentPrice;
-        state.currentPrice = price;
-        state.lastUpdated = new Date();
-        render();
+      const response = await fetch(url, {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+        ...(controller ? { signal: controller.signal } : {})
+      });
+      if (!response.ok) throw new Error(`market data request failed (${response.status})`);
+      const data = await response.json();
+      if (!data || typeof data !== 'object') throw new Error('market data response was empty');
+      return data;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
+  async function refreshTicker() {
+    let price = null;
+    let change24h = null;
+    const statsUrl = config.data.statsUrl
+      || String(config.data.tickerUrl).replace(/\/ticker(?:\?.*)?$/, '/stats');
+
+    try {
+      const [tickerResult, statsResult] = await Promise.allSettled([
+        fetchJson(config.data.tickerUrl),
+        fetchJson(statsUrl)
+      ]);
+      if (tickerResult.status === 'fulfilled') {
+        const tickerPrice = Number(tickerResult.value?.price);
+        if (tickerPrice > 0) price = tickerPrice;
       }
-    } catch (e) {
+      if (statsResult.status === 'fulfilled') {
+        const last = Number(statsResult.value?.last);
+        const open = Number(statsResult.value?.open);
+        if (!(price > 0) && last > 0) price = last;
+        if (last > 0 && open > 0) change24h = ((last - open) / open) * 100;
+      }
+    } catch (_) {}
+
+    if (!(price > 0) || !Number.isFinite(change24h)) {
       try {
-        const resp = await fetch(config.data.fallbackTickerUrl);
-        const data = await resp.json();
-        const price = Number(data?.bitcoin?.usd);
-        if (price > 0) {
-          state.previousPrice = state.currentPrice;
-          state.currentPrice = price;
-          state.lastUpdated = new Date();
-          render();
-        }
+        const fallbackUrl = new URL(config.data.fallbackTickerUrl);
+        fallbackUrl.searchParams.set('include_24hr_change', 'true');
+        const fallback = await fetchJson(fallbackUrl.toString());
+        const fallbackPrice = Number(fallback?.bitcoin?.usd);
+        const fallbackChange = Number(fallback?.bitcoin?.usd_24h_change);
+        if (!(price > 0) && fallbackPrice > 0) price = fallbackPrice;
+        if (Number.isFinite(fallbackChange)) change24h = fallbackChange;
       } catch (_) {}
+    }
+
+    if (price > 0) {
+      state.previousPrice = state.currentPrice;
+      state.currentPrice = price;
+      if (Number.isFinite(change24h)) state.priceChange24h = change24h;
+      state.officialLow = Math.min(Number(state.officialLow) || price, price);
+      state.lastUpdated = new Date();
+      render();
+    } else {
+      console.warn('live BTC ticker refresh failed; keeping the last good value');
     }
   }
 
   async function refreshHistory() {
     const now = new Date();
-    try {
-      state.dailyCandles = await fetchCandles(new Date(config.startDate), now, 86400);
-      state.dailyCandles.sort((a, b) => a[0] - b[0]);
+    let fallbackHistoryPromise = null;
+    const fallbackHistory = () => {
+      if (!fallbackHistoryPromise) {
+        fallbackHistoryPromise = fetchFallbackCandles(new Date(config.startDate), now);
+      }
+      return fallbackHistoryPromise;
+    };
+    const [dailyResult, hourlyResult] = await Promise.allSettled([
+      fetchCandles(new Date(config.startDate), now, 86400).catch(async (error) => {
+        console.warn('Coinbase daily candles unavailable; using the secondary history feed', error);
+        return rollupDailyCandles(await fallbackHistory());
+      }),
+      fetchCandles(new Date(config.startDate), now, 3600).catch(async (error) => {
+        console.warn('Coinbase hourly candles unavailable; using the secondary history feed', error);
+        return fallbackHistory();
+      })
+    ]);
+
+    if (dailyResult.status === 'fulfilled') {
+      state.dailyCandles = dailyResult.value.sort((a, b) => a[0] - b[0]);
       const completed = state.dailyCandles.filter((c) => c[0] + 86400 <= Math.floor(now.getTime() / 1000));
       state.completedDailyCloses = completed.length;
       if (completed.length) {
         state.lastDailyClose = Number(completed[completed.length - 1][4]);
         state.prevDailyClose = completed.length > 1 ? Number(completed[completed.length - 2][4]) : null;
       }
-      state.hourlyLows = await fetchCandles(new Date(config.startDate), now, 3600);
-      state.hourlyLows.sort((a, b) => a[0] - b[0]);
-      const lows = state.hourlyLows.map((c) => Number(c[1])).filter((v) => Number.isFinite(v));
-      state.officialLow = lows.length ? Math.min(...lows, state.currentPrice) : Math.min(state.currentPrice, config.startPrice);
       state.volatility = computeVolatility(state.dailyCandles);
-      render();
-    } catch (e) {
-      console.warn('history refresh failed', e);
-      render();
+    } else {
+      console.warn('daily BTC candle refresh failed', dailyResult.reason);
     }
+
+    if (hourlyResult.status === 'fulfilled') {
+      state.hourlyLows = hourlyResult.value.sort((a, b) => a[0] - b[0]);
+      const lows = state.hourlyLows.map((c) => Number(c[1])).filter((value) => Number.isFinite(value));
+      state.officialLow = lows.length
+        ? Math.min(...lows, state.currentPrice)
+        : Math.min(state.currentPrice, Number(state.officialLow) || config.startPrice);
+
+      const dayAgo = Math.floor(now.getTime() / 1000) - 86400;
+      const recentCandles = state.hourlyLows.filter((c) => Number(c[0]) >= dayAgo - 3600);
+      const prices = recentCandles.map((c) => Number(c[4])).filter((value) => Number.isFinite(value) && value > 0);
+      if (state.currentPrice > 0) prices.push(state.currentPrice);
+      state.sparklinePrices = prices.slice(-25);
+
+      if (!Number.isFinite(state.priceChange24h) && recentCandles.length) {
+        const first = recentCandles[0];
+        const open24h = Number(first[3]) || Number(first[4]);
+        if (open24h > 0 && state.currentPrice > 0) {
+          state.priceChange24h = ((state.currentPrice - open24h) / open24h) * 100;
+        }
+      }
+    } else {
+      console.warn('hourly BTC candle refresh failed', hourlyResult.reason);
+    }
+
+    render();
+  }
+
+  async function fetchFallbackCandles(startDate, endDate) {
+    const url = new URL('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range');
+    url.searchParams.set('vs_currency', 'usd');
+    url.searchParams.set('from', String(Math.floor(startDate.getTime() / 1000)));
+    url.searchParams.set('to', String(Math.floor(endDate.getTime() / 1000)));
+    const data = await fetchJson(url.toString());
+    const prices = Array.isArray(data?.prices) ? data.prices : [];
+    if (!prices.length) throw new Error('secondary history response contained no prices');
+    return prices
+      .map((row) => {
+        const time = Math.floor(Number(row?.[0]) / 1000);
+        const price = Number(row?.[1]);
+        return [time, price, price, price, price, 0];
+      })
+      .filter((row) => Number.isFinite(row[0]) && Number.isFinite(row[1]) && row[1] > 0)
+      .sort((a, b) => a[0] - b[0]);
+  }
+
+  function rollupDailyCandles(hourlyCandles) {
+    const days = new Map();
+    hourlyCandles.forEach((candle) => {
+      const time = Number(candle[0]);
+      const low = Number(candle[1]);
+      const high = Number(candle[2]);
+      const open = Number(candle[3]);
+      const close = Number(candle[4]);
+      if (![time, low, high, open, close].every(Number.isFinite)) return;
+      const day = Math.floor(time / 86400) * 86400;
+      const existing = days.get(day);
+      if (!existing) days.set(day, [day, low, high, open, close, 0]);
+      else {
+        existing[1] = Math.min(existing[1], low);
+        existing[2] = Math.max(existing[2], high);
+        existing[4] = close;
+      }
+    });
+    return [...days.values()].sort((a, b) => a[0] - b[0]);
   }
 
   async function fetchCandles(startDate, endDate, granularity) {
     const out = [];
-    const maxPoints = 290;
+    const maxPoints = 280;
     const chunkSeconds = granularity * maxPoints;
     let cursor = Math.floor(startDate.getTime() / 1000);
     const end = Math.floor(endDate.getTime() / 1000);
@@ -192,15 +308,14 @@
       url.searchParams.set('granularity', String(granularity));
       url.searchParams.set('start', new Date(cursor * 1000).toISOString());
       url.searchParams.set('end', new Date(chunkEnd * 1000).toISOString());
-      const resp = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!resp.ok) throw new Error('candles failed');
-      const data = await resp.json();
+      const data = await fetchJson(url.toString());
+      if (!Array.isArray(data)) throw new Error('candle response was not an array');
       data.forEach((row) => out.push(row));
-      cursor = chunkEnd + granularity;
+      cursor = chunkEnd;
     }
     const seen = new Set();
     return out.filter((row) => {
-      if (seen.has(row[0])) return false;
+      if (!Array.isArray(row) || seen.has(row[0])) return false;
       seen.add(row[0]);
       return true;
     });
@@ -251,11 +366,48 @@
     if ($('alt-secs')) $('alt-secs').textContent = String(secs).padStart(2, '0');
     if (priceEl) priceEl.textContent = formatCurrency(state.currentPrice);
     if (deltaEl) {
-      const delta = state.currentPrice - state.previousPrice;
-      const pct = state.previousPrice ? (delta / state.previousPrice) * 100 : 0;
-      deltaEl.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
-      deltaEl.style.color = pct >= 0 ? '#45db9a' : '#ff5366';
+      const has24h = Number.isFinite(state.priceChange24h);
+      const pct = has24h ? state.priceChange24h : 0;
+      deltaEl.textContent = has24h ? `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% 24H` : '-- 24H';
+      deltaEl.style.color = !has24h ? '#b9cbe0' : (pct >= 0 ? '#45db9a' : '#ff5366');
+      deltaEl.title = 'Bitcoin price change over the trailing 24 hours';
     }
+    renderSparkline();
+  }
+
+  function renderSparkline() {
+    const svg = document.querySelector('.alt-spark');
+    const polyline = svg?.querySelector('polyline');
+    if (!svg || !polyline) return;
+    const values = state.sparklinePrices
+      .map(Number)
+      .filter((value) => Number.isFinite(value) && value > 0)
+      .slice(-25);
+    if (state.currentPrice > 0 && values[values.length - 1] !== state.currentPrice) values.push(state.currentPrice);
+    if (values.length < 2) return;
+
+    const width = 128;
+    const height = 38;
+    const padding = 3;
+    const low = Math.min(...values);
+    const high = Math.max(...values);
+    const range = Math.max(1, high - low);
+    const points = values.map((value, index) => {
+      const x = padding + (index / Math.max(1, values.length - 1)) * (width - padding * 2);
+      const y = padding + ((high - value) / range) * (height - padding * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    polyline.setAttribute('points', points);
+
+    const has24h = Number.isFinite(state.priceChange24h);
+    const pct = has24h ? state.priceChange24h : 0;
+    svg.style.color = !has24h ? '#b9cbe0' : (pct >= 0 ? '#45db9a' : '#ff5366');
+    svg.setAttribute(
+      'aria-label',
+      has24h
+        ? `Bitcoin 24-hour price chart, ${pct >= 0 ? 'up' : 'down'} ${Math.abs(pct).toFixed(2)} percent`
+        : 'Bitcoin 24-hour price chart'
+    );
   }
 
   function renderTopStats() {
@@ -392,34 +544,36 @@
 
   function renderDepthCard() {
     const entries = [
-      { id: 'officialLow', value: state.officialLow, label: `Race low ${formatCompact(state.officialLow)}`, type: 'low', note: 'Current contest low' },
+      { id: 'officialLow', value: state.officialLow, label: `Race low ${formatCompact(state.officialLow)}`, type: 'low', note: 'Locked contest low' },
       { id: 'tom', value: 59000, label: 'Tom', type: 'tom', note: '$59k' },
       { id: 'tatiana', value: 53300, label: 'Tatiana', type: 'tatiana', note: '$53.3k' },
       { id: 'rodster', value: 47976, label: 'Rodster', type: 'rodster', note: '$47,976' },
       { id: 'bike', value: 38750, label: 'Bike', type: 'bike', note: '$38,750' },
       { id: 'whitesw0n', value: 37999, label: 'WhiteSw0n', type: 'whitesw0n', note: '$37,999' }
     ];
-    const max = Math.max(config.startPrice, state.currentPrice, 64100);
     const min = 37000;
+    const highestPrice = Math.max(config.startPrice, state.currentPrice, state.officialLow, 70000);
+    const max = Math.max(75000, Math.ceil(highestPrice / 5000) * 5000);
     const range = Math.max(1, max - min);
     const pctFor = (value) => Math.max(5, Math.min(95, ((max - value) / range) * 100));
-    const ticks = [64000, 59000, 53300, 48000, 39000, 38000];
-    const pointerPct = pctFor(state.officialLow);
+    const ticks = [...new Set([max, 70000, 64000, 59000, 53300, 48000, 39000, 38000])]
+      .filter((value) => value <= max && value >= min);
+    const pointerPct = pctFor(state.currentPrice);
     const pointerTone = pointerPct < 20 ? 'tone-high' : pointerPct < 40 ? 'tone-mid' : pointerPct < 65 ? 'tone-lower' : 'tone-deep';
     $('depth-card').innerHTML = `
       <h2>Bitcoin Depth Meter</h2>
-      <p class="muted">The live pointer slides down the meter as BTC prints lower lows during the race.</p>
+      <p class="muted">The live pointer tracks BTC now. The contest low remains locked separately for the final result.</p>
       <div class="meter-layout">
         <div class="meter-wrap"><div class="meter-scale compact-meter">
           <div class="meter-bar"></div>
-          <div class="meter-pointer ${pointerTone}" style="top:${pointerPct.toFixed(1)}%"><b class="pointer-arrow">←</b><span class="pointer-price">${formatCurrency(state.officialLow)}</span></div>
-          ${ticks.map((v) => `<div class="tick" style="top:${pctFor(v).toFixed(1)}%"><span>${formatCompact(v)}</span></div>`).join('')}
+          <div class="meter-pointer ${pointerTone}" style="top:${pointerPct.toFixed(1)}%"><b class="pointer-arrow">←</b><span class="pointer-price">${formatCurrency(state.currentPrice)}</span></div>
+          ${ticks.map((value) => `<div class="tick" style="top:${pctFor(value).toFixed(1)}%"><span>${formatCompact(value)}</span></div>`).join('')}
         </div></div>
         <div class="meter-legend">
           ${entries.map((e) => `<div class="meter-entry ${e.type}"><span class="meter-dot"></span><div><strong>${e.label}</strong><small>${e.note}</small></div></div>`).join('')}
         </div>
       </div>
-      <div class="depth-trend">Depth meter trend <strong>${state.prevDailyClose && state.lastDailyClose ? (state.lastDailyClose < state.prevDailyClose ? 'Deeper' : 'Flatter') : 'Waiting for the first two daily closes'}</strong></div>`;
+      <div class="depth-trend">Official contest low <strong>${formatCurrency(state.officialLow)}</strong></div>`;
   }
 
   function renderRulesCard() {
