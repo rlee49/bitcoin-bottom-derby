@@ -10,7 +10,7 @@ Entry opens: August 11, 2026 at [TIME ZONE]
 
 Entry closes: [DATE AND TIME]. Consider closing picks before the final race day rather than allowing last-minute entries.
 
-Race ends: October 6, 2026 at 11:59:59 PM Central Time.
+Race ends: November 3, 2026 at 11:59:59 PM Central Time.
 
 ## 2. Free entry
 
