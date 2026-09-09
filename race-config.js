@@ -1,9 +1,9 @@
 window.RACE_CONFIG = {
   version: "2026.08.16.43",
   title: "The Bitcoin Bottom Derby",
-  subtitle: "Five public calls. Live race order stays fun day-to-day, while the official October 6 winner is the call closest to Bitcoin's contest low.",
+  subtitle: "Five public calls. Live race order stays fun day-to-day, while the official November 3 winner is the call closest to Bitcoin's contest low.",
   startDate: "2026-08-11T18:00:00Z",
-  endDate: "2026-10-07T04:59:59Z",
+  endDate: "2026-11-04T05:59:59Z",
   startPrice: 63559,
   dailyCloseHourUtc: 0,
   data: {
